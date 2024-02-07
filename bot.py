@@ -19,6 +19,7 @@ async def main():
     dp.include_routers(new_pet.router, find_pet.router, commands.router)
     print('create include routes')
     # await bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook()
     print('del webhoocks')
     await init_db()
     print(f'db init done!')
