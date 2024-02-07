@@ -4,16 +4,20 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from handlers import commands, new_pet, find_pet
 from db import init_db
+import logging
+logging.basicConfig(level=logging.INFO)
 
 
 async def main():
     token = load_bot_token()
     print('RUN BOT!')
+    print(f'token = {token}')
     bot = Bot(token=token, parse_mode='HTML')
     dp = Dispatcher()
     dp.include_routers(new_pet.router, find_pet.router, commands.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await init_db()
+    print(f'db init done!')
     await dp.start_polling(bot)
 
 
