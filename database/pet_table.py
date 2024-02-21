@@ -1,42 +1,81 @@
 from db import async_session
-from models import Pet
-from sqlalchemy import select, insert, update
+from models import Pet, Volunteer
+from sqlalchemy import select, insert, update, delete
 from uuid import uuid4, UUID
+from sqlalchemy.orm import joinedload
 
 
-async def add_new_pet(owner_id: int, owner_nick: str) -> UUID:
+async def add_new_pet(volunteer_tg_id: int) -> UUID:
     uuid = uuid4()
     async with async_session() as session:
         async with session.begin():
-            await session.execute(insert(Pet).values(owner_id=owner_id, uuid=uuid, owner_nick=owner_nick))
+            await session.execute(insert(Pet).values(volunteer_tg_id=volunteer_tg_id, uuid=uuid))
     return uuid
 
 
-async def get_info_from_pet(uuid: UUID) -> Pet:
-    async with async_session() as session:
-        async with session.begin():
-            pet = (await session.execute(select(Pet).where(Pet.uuid == uuid))).one()
-    return pet
+# async def get_info_from_pet(uuid: UUID) -> Pet:
+#     async with async_session() as session:
+#         async with session.begin():
+#             pet = (await session.execute(select(Pet).where(Pet.uuid == uuid))).one()
+#     return pet
 
 
 async def get_info_from_pet(uuid: UUID) -> Pet:
-    async with async_session() as session:
+    """async with async_session() as session:
         async with session.begin():
-            pet = (await session.execute(select(Pet.pet_photo_id,
-                                                Pet.description,
-                                                Pet.pet_type
-                                                ).where(Pet.uuid == uuid))).one()
+            # pet = (await session.execute(select(Pet.pet_photo_id, Pet.volunteer_tg_id, Pet.volunteer_nick,
+            #                                     Pet.description,
+            #                                     Pet.pet_type
+            #                                     ).where(Pet.uuid == uuid))).one()
+
+            pet = (await session.execute(select(Pet).options(
+                joinedload(Pet.volunteer)).where(Pet.uuid == uuid))).scalars().one()
+    return pet"""
+    async with async_session() as session:
+        pet = await session.scalar(select(Pet).options(joinedload(Pet.volunteer)).where(Pet.uuid == uuid))
     return pet
 
 
 async def get_available_pet(pet_type: str, offset: int) -> Pet:
-    async with async_session() as session:
+    """async with async_session() as session:
         async with session.begin():
             pets = (await session.execute(select(Pet.uuid, Pet.description,
-                                                      Pet.pet_photo_id, Pet.owner_nick, Pet.owner_id
+                                                      Pet.pet_photo_id, Pet.volunteer_nick, Pet.volunteer_tg_id
                                                       ).where(Pet.pet_type == pet_type,
                                                               Pet.available == True).offset(offset))).first()
-    return pets
+    return pets"""
+    async with async_session() as session:
+        # pets = (await session.execute(select(Pet).options(joinedload(Pet.volunteer)).where(
+        #     Pet.pet_type == pet_type, Pet.available == True).offset(offset))).first()   
+        pets = (await session.execute(select(Pet).options(joinedload(
+            Pet.volunteer)).where(Pet.pet_type == pet_type, Pet.available == True).offset(offset))).scalars().first()
+        return pets
+    
+
+async def get_available_pet_in_city(city: str, offset: int) -> Pet:
+    async with async_session() as session:
+        pets = (await session.execute(select(Pet).options(joinedload(
+            Pet.volunteer)).where(Pet.city == city,
+            Pet.available == True).order_by(Pet.created_time.desc()).offset(offset))).scalars().first()
+        return pets
+    
+
+
+async def delete_pet_card(uuid: UUID) -> Pet:
+    async with async_session() as session:
+        async with session.begin():
+            await session.execute(delete(Pet).where(Pet.uuid == uuid))
+            await session.commit()
+        
+
+
+
+async def get_volinteer_pets(tg_id: int, offset: int) -> Pet:
+    async with async_session() as session:
+        pets = (await session.execute(select(Pet).options(joinedload(
+            Pet.volunteer)).where(Volunteer.tg_id == tg_id, Pet.available == True).offset(offset))).scalars().first()
+        return pets
+
 
 async def get_prompt(uuid: UUID) -> str:
     async with async_session() as session:
@@ -50,14 +89,44 @@ async def get_description(uuid: UUID) -> str:
     async with async_session() as session:
         async with session.begin():
             description = await session.execute(select(Pet.description).where(Pet.uuid == uuid))
-    print(f'description = {description}')
+    # print(f'description = {description}')
     return description.one().description
+
+
+async def update_pet_column(uuid: UUID, **kwargs):
+    async with async_session() as session:
+            await session.execute(update(Pet).values(**kwargs).where(
+                Pet.uuid == uuid
+            ))
+            await session.commit()
+
+
+async def get_pet_type(uuid: UUID) -> str:
+    async with async_session() as session:
+        async with session.begin():
+            pet_type = await session.execute(select(Pet.pet_type).where(Pet.uuid == uuid))
+    return pet_type.one().pet_type
+
+
+async def update_pet_gender(gender: str, uuid: UUID):
+    async with async_session() as session:
+            await session.execute(update(Pet).values(gender=gender).where(
+                Pet.uuid == uuid
+            ))
 
 
 async def update_pet_type(pet_type: str, uuid: UUID):
     async with async_session() as session:
         async with session.begin():
             await session.execute(update(Pet).values(pet_type=pet_type).where(
+                Pet.uuid == uuid
+            ))
+
+
+async def delete_pet(uuid: UUID):
+    async with async_session() as session:
+        async with session.begin():
+            await session.execute(delete(Pet).where(
                 Pet.uuid == uuid
             ))
 
