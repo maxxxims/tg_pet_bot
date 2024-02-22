@@ -18,6 +18,7 @@ class AddPet(StatesGroup):
     choosing_pet_city = State()
 
     choosing_pet_promt = State()
+    writing_own_description = State()
     choosing_pet_photo = State()
 
 

@@ -14,6 +14,9 @@ MSG_AFTER_ADMIN_REGISTRATION = """Поздравляем, регистрация
 MSG_AFTER_REGISTRATION = """Чтобы добавить питомца, введите команду /new
 Чтобы посмотреть список добавленных животных, введите команду /pets"""
 
+
+MSG_PET_DESCRIPTION = """Выберите необходимый пункт"""
+
 def load_bot_token():
     load_dotenv()
     return os.getenv("OLD_BOT_TOKEN")

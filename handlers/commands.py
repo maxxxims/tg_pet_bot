@@ -22,21 +22,13 @@ async def cmd_start(message: Message, state: FSMContext):
     await message.answer(text=MSG)
 
 
-@router.message(StateFilter(None), Command('info'))
-async def cmd_info(message: Message, state: FSMContext):
-    await message.answer(text=MSG)
-
-# @router.message(StateFilter(None), Command('info'))
+# @router.message(StateFilter(AddPet.choosing_pet_type, 
+#                             AddPet.choosing_pet_gender, AddPet.choosing_pet_chip,
+#                             AddPet.choosing_pet_castration, AddPet.choosing_pet_photo), Command('exit'))
+# @router.message(StateFilter('*'), Command('exit'))
 # async def cmd_info(message: Message, state: FSMContext):
-#     await message.answer(text=MSG + f'message.chat.id = {message.chat.id}, id = {message.from_user.id}')
-#     #await message.bot.send_message(chat_id=6161416635, text="тестовое сообщение от бота")
-#     user_channel_status = await message.bot.get_chat_member(chat_id='-1002026863689', user_id=message.from_user.id)
-#     user_channel_status_admins = await message.bot.get_chat_administrators(chat_id='-1002026863689')
-#     # message.bot.
-#     print('*****************************')
-#     print(user_channel_status)
-#     print('*****************************')
-#     print(user_channel_status_admins)
+#     await message.answer(text=MSG)
+
     
 
 @router.message(StateFilter(None), Command('registration'))

@@ -32,6 +32,9 @@ def get_agree_description_kb() -> InlineKeyboardMarkup:
                                      callback_data=AgreeDescriptionCallback(agree=False).pack()),
                 InlineKeyboardButton(text='✅ Далее',
                                     callback_data=AgreeDescriptionCallback(agree=True).pack()),
+            ],
+            [
+                InlineKeyboardButton(text='✍🏼 Ввести своё описание', callback_data=WriteOwnDescriptionCallback().pack()),
             ]
         ]
     )

@@ -11,15 +11,10 @@ from gpt import make_description
 from models import Pet
 from utils import make_pet_description, get_corrected_city
 from send_notification import send_pet_card_to_admins
+from config import MSG_PET_DESCRIPTION
+
 
 router = Router()
-
-
-# def make_pet_description(pet: Pet):
-#     user_name = f'[{pet.volunteer.nick}](tg://user?id={str({pet.volunteer_tg_id})})'
-#     #user_name = f'[{pet.owner_nick}](tg://user?id={str({pet.owner_id})})'
-#     text = pet.description + '\n' + 'Владелец: ' + f'[{pet.volunteer.nick}](tg://user?id={str(pet.volunteer_tg_id)})'
-#     return text
 
 
 @router.message(StateFilter(None), Command('new'))
@@ -44,16 +39,17 @@ async def choose_pet_gender(query: CallbackQuery, state: FSMContext, callback_da
         smile = "🐕"
     else:
         smile = "🐈"
-    # await query.message.answer(text=f'Введите описание питомца {smile}')
-    # await state.set_state(AddPet.choosing_pet_promt)
     await query.message.answer(text=f'Укажите пол питомца {smile}', reply_markup=get_choosing_gender_kb())
     await state.set_state(AddPet.choosing_pet_gender)
     await pet_table.update_pet_type(callback_data.pet_type, callback_data.uuid)
 
 
-@router.message(AddPet.choosing_pet_type)
+@router.message(StateFilter(AddPet.choosing_pet_type, 
+                            AddPet.choosing_pet_gender, AddPet.choosing_pet_chip,
+                            AddPet.choosing_pet_castration, AddPet.choosing_pet_photo), F.text)
 async def choose_pet_gender_stop(message: Message, state: FSMContext):
-    await message.answer(text='Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
+    # await message.delete()
+    await message.answer(text='fffffffffff Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
     data = await state.get_data()
     uuid = data['uuid']
     await pet_table.delete_pet(uuid)
@@ -73,15 +69,6 @@ async def choose_pet_gender(query: CallbackQuery, state: FSMContext, callback_da
     await pet_table.update_pet_column(uuid, gender=callback_data.pet_gender)
     
 
-@router.message(AddPet.choosing_pet_gender)
-async def choose_pet_gender_stop(message: Message, state: FSMContext):
-    await message.answer(text='Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
-    data = await state.get_data()
-    uuid = data['uuid']
-    await pet_table.delete_pet(uuid)
-    await state.set_state(None)
-
-
 @router.callback_query(AddPet.choosing_pet_name, PetNameCallback.filter())
 async def choose_pet_gender_callback(query: CallbackQuery, state: FSMContext, callback_data: PetNameCallback):
     await state.set_state(AddPet.choosing_pet_age)
@@ -95,7 +82,6 @@ async def choose_pet_gender_callback(query: CallbackQuery, state: FSMContext, ca
 @router.message(AddPet.choosing_pet_name, F.text)
 async def choose_pet_name(message: Message, state: FSMContext, from_callback: bool = False):
     # print('HERE!')
-    
     data = await state.get_data()
     uuid = data['uuid']
     if message.text.startswith('/'):
@@ -104,18 +90,27 @@ async def choose_pet_name(message: Message, state: FSMContext, from_callback: bo
         await state.set_state(None)
         return
 
-    await message.answer(text=f'Укажите возраст питомца \nНапример, 3 месяца, 2.5 года')
+    kb = get_skip_button(SkipButtonCallback)
+    await message.answer(text=f'Укажите возраст питомца \nНапример, 3 месяца, 2.5 года',
+                         reply_markup=kb)
 
     await state.set_state(AddPet.choosing_pet_age)
     if not from_callback:
         await pet_table.update_pet_column(uuid, name=message.text)
 
 
+@router.callback_query(AddPet.choosing_pet_age, SkipButtonCallback.filter())
+async def skip_pet_age(query: CallbackQuery, state: FSMContext):
+    await state.set_state(AddPet.choosing_pet_weight)
+    await query.answer()
+    kb = get_skip_button(SkipButtonCallback)
+    await query.message.answer(text=f'Укажите вес питомца \nНапример, 2 кг', reply_markup=kb)
+    await query.message.delete()
+    
 
 
 @router.message(AddPet.choosing_pet_age, F.text)
 async def choose_pet_age(message: Message, state: FSMContext):
-    # print('HERE!')
     data = await state.get_data()
     uuid = data['uuid']
     if message.text.startswith('/'):
@@ -124,17 +119,23 @@ async def choose_pet_age(message: Message, state: FSMContext):
         await state.set_state(None)
         return
     
-    await message.answer(text=f'Укажите вес питомца \nНапример, 2 кг')
+    kb = get_skip_button(SkipButtonCallback)
+    await message.answer(text=f'Укажите вес питомца \nНапример, 2 кг', reply_markup=kb)
 
     await state.set_state(AddPet.choosing_pet_weight)
     await pet_table.update_pet_column(uuid, age=message.text)
 
 
+@router.callback_query(AddPet.choosing_pet_weight, SkipButtonCallback.filter())
+async def skip_pet_weight(query: CallbackQuery, state: FSMContext):
+    await state.set_state(AddPet.choosing_pet_chip)
+    await query.answer()
+    await query.message.answer(text=f'Питомец чипирован?', reply_markup=get_choosing_chip_kb())
+    await query.message.delete()
 
 
 @router.message(AddPet.choosing_pet_weight, F.text)
 async def choose_pet_weight(message: Message, state: FSMContext):
-    # print('HERE!')
     data = await state.get_data()
     uuid = data['uuid']
     if message.text.startswith('/'):
@@ -160,15 +161,6 @@ async def choose_pet_chip(query: CallbackQuery, state: FSMContext, callback_data
                                                             pet_vaccinations=''))
     await state.set_state(AddPet.choosing_pet_vaccinations)
     await pet_table.update_pet_column(uuid, has_chip=callback_data.pet_chip)
-
-
-@router.message(AddPet.choosing_pet_chip)
-async def choose_pet_gender_stop(message: Message, state: FSMContext):
-    await message.answer(text='Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
-    data = await state.get_data()
-    uuid = data['uuid']
-    await pet_table.delete_pet(uuid)
-    await state.set_state(None)
 
 
 @router.callback_query(AddPet.choosing_pet_vaccinations, PetVaccinationsCallback.filter())
@@ -212,21 +204,6 @@ async def choose_pet_chip(query: CallbackQuery, state: FSMContext, callback_data
     await pet_table.update_pet_column(uuid, castration=callback_data.pet_castration)
 
 
-@router.message(AddPet.choosing_pet_castration)
-async def choose_pet_gender_stop(message: Message, state: FSMContext):
-    await message.answer(text='Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
-    data = await state.get_data()
-    uuid = data['uuid']
-    if message.text.startswith('/'):
-        await message.answer('Заполнение анкеты остановлено. Отправьте последнюю команду заново.')
-        await pet_table.delete_pet(uuid)
-        await state.set_state(None)
-        return
-    await pet_table.delete_pet(uuid)
-    await state.set_state(None)
-
-
-
 @router.callback_query(AddPet.choosing_pet_special_care, PetSpecialCareCallback.filter())
 async def choose_pet_special_care_callback(query: CallbackQuery, state: FSMContext, callback_data: PetSpecialCareCallback):
     await state.set_state(AddPet.choosing_pet_city)
@@ -246,9 +223,6 @@ async def choose_pet_special_care(message: Message, state: FSMContext, from_call
     print('\n' * 5)
     await message.answer(text='Введите город, в котором находится питомец',
                          reply_markup=get_choosing_default_city_kb(default_city=default_city))
-    
-    # await message.answer(text=f'Отправьте фото питомца')
-    #await state.set_state(AddPet.choosing_pet_photo)
     await state.set_state(AddPet.choosing_pet_city)
     if from_callback:
         return
@@ -259,7 +233,6 @@ async def choose_pet_special_care(message: Message, state: FSMContext, from_call
 
 @router.callback_query(AddPet.choosing_pet_city, PetCityCallback.filter())
 async def choose_pet_city_callback(query: CallbackQuery, state: FSMContext, callback_data: PetCityCallback):
-    # print('HEREERREREREREREREEEEEEEEEEEEEEEEEEEEEE!!!')
     try:    await query.message.delete()
     except:  ...
     await state.set_state(AddPet.choosing_pet_photo)
@@ -288,21 +261,19 @@ async def choose_pet_city(message: Message, state: FSMContext, from_callback: bo
     await state.set_state(AddPet.choosing_pet_photo)
 
 
-################################
-# @router.callback_query(AddPet.choosing_pet_type, PetTypeCallback.filter())
-# async def choose_pet_type(query: CallbackQuery, state: FSMContext, callback_data: PetTypeCallback):
-#     try:    await query.message.delete()
-#     except:  ...
-#     if callback_data.pet_type == 'dog':
-#         smile = "🐕"
-#     else:
-#         smile = "🐈"
-#     # await query.message.answer(text=f'Введите описание питомца {smile}')
-#     # await state.set_state(AddPet.choosing_pet_promt)
-#     await query.message.answer(text=f'Отправьте фото питомца {smile}')
-#     await state.set_state(AddPet.choosing_pet_photo)
-#     await pet_table.update_pet_type(callback_data.pet_type, callback_data.uuid)
+@router.message(AddPet.choosing_pet_photo, F.photo)
+async def pick_photo(message: Message, state: FSMContext):
+    photos = message.photo
+    for photo in photos:
+        photo_id = photo.file_id
+        break
+    data = await state.get_data()
+    uuid = data['uuid']
+    await pet_table.update_pet_photo(photo_id, uuid)
+    await message.answer(text='Отправьте описание питомца')
 
+    await state.set_state(AddPet.choosing_pet_promt)
+   
 
 @router.message(AddPet.choosing_pet_promt, F.text)
 async def make_prompt(message: Message, state: FSMContext):
@@ -323,36 +294,14 @@ async def make_prompt(message: Message, state: FSMContext):
 
     await pet_table.update_pet_description(description, uuid)
     await message.answer(text=f'Описание питомца: \n{description}',
-                         reply_markup=get_agree_description_kb())
+                         )
+    await message.answer(text=MSG_PET_DESCRIPTION,
+        reply_markup=get_agree_description_kb()
+    )
     await sent_msg.delete()
 
 
-@router.message(AddPet.choosing_pet_photo, F.photo)
-async def pick_photo(message: Message, state: FSMContext):
-    photos = message.photo
-    for photo in photos:
-        photo_id = photo.file_id
-        break
-    data = await state.get_data()
-    uuid = data['uuid']
-    await pet_table.update_pet_photo(photo_id, uuid)
-    await message.answer(text='Отправьте описание питомца')
 
-    await state.set_state(AddPet.choosing_pet_promt)
-    # await state.set_state(None)
-    # await pet_table.update_available_pet(available=True, uuid=uuid)
-    # pet = await pet_table.get_info_from_pet(uuid)
-    # text = "<b>Карточка питомца:</b> \n" + pet.description
-    # await message.answer_photo(pet.pet_photo_id, caption=text)
-
-
-@router.message(AddPet.choosing_pet_photo)
-async def choose_pet_gender_stop(message: Message, state: FSMContext):
-    await message.answer(text='Вы не отпрвили фото питомца, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
-    data = await state.get_data()
-    uuid = data['uuid']
-    await pet_table.delete_pet(uuid)
-    await state.set_state(None)
 
 
 @router.callback_query(AddPet.choosing_pet_promt, AgreeDescriptionCallback.filter())
@@ -362,9 +311,6 @@ async def agree_prompt(query: CallbackQuery, state: FSMContext, callback_data: A
     if callback_data.agree:
         try:    await query.message.delete()
         except:  ...
-        # await query.message.answer(text='Отправьте фото питомца')
-        # await state.set_state(AddPet.choosing_pet_photo)
-        
         await pet_table.update_available_pet(available=True, uuid=uuid)
         pet = await pet_table.get_info_from_pet(uuid)
         text = '<u><b>Карточка питомца:</b></u> \n' + make_pet_description(pet)
@@ -380,8 +326,6 @@ async def agree_prompt(query: CallbackQuery, state: FSMContext, callback_data: A
     else:
         await query.answer()
         pet = await pet_table.get_info_from_pet(uuid)
-        # prompt = await pet_table.get_prompt(uuid)
-        # pet_type = await pet_table.get_pet_type(uuid)
         sent_msg = await query.message.answer(text='Создаем описание...✏️')
         new_description = await make_description(pet) #message.text #+ 'description'
 
@@ -390,7 +334,47 @@ async def agree_prompt(query: CallbackQuery, state: FSMContext, callback_data: A
         try:    await query.message.delete()
         except:  ...
 
-        await query.message.answer(text=f'Описание питомца: \n{new_description}',
-                         reply_markup=get_agree_description_kb())
+        await query.message.answer(text=f'Описание питомца: \n{new_description}')
+
+        await query.message.answer(
+            text=MSG_PET_DESCRIPTION, reply_markup=get_agree_description_kb()
+        )
 
         await sent_msg.delete()
+
+
+
+
+@router.callback_query(AddPet.choosing_pet_promt, WriteOwnDescriptionCallback.filter())
+async def write_own_description(query: CallbackQuery, state: FSMContext, callback_data: WriteOwnDescriptionCallback):
+    await query.message.answer(
+        text='Введите описание питомца'
+    )
+    await state.set_state(AddPet.writing_own_description)
+    await query.answer()
+    await query.message.delete()
+    
+
+@router.message(AddPet.writing_own_description, F.text)
+async def write_own_description_text(message: Message, state: FSMContext):
+    if message.text.startswith('/'):
+        await state.set_state(None)
+        await message.answer(text='Создание анкеты завершено, введите команду заново')
+        return 
+    description = message.text
+    data = await state.get_data()
+    uuid = data['uuid']
+    await pet_table.update_pet_description(description, uuid)
+    await message.answer(
+        text='Введите описание питомца'
+    )
+    await pet_table.update_available_pet(available=True, uuid=uuid)
+    pet = await pet_table.get_info_from_pet(uuid)
+    text = '<u><b>Карточка питомца:</b></u> \n' + make_pet_description(pet)
+    await message.answer_photo(pet.pet_photo_id,
+                                    caption=text,
+                                    parse_mode="HTML")
+    await state.set_state(None)
+
+    if pet.city is not None:
+        await send_pet_card_to_admins(message.bot, pet, pet.city)

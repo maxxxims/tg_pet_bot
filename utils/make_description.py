@@ -3,13 +3,18 @@ from models import Pet
 
 def get_pet_gender(pet: Pet):   return '\n' + f'<b>Пол:</b> {pet.gender}'
 def get_pet_name(pet: Pet):     return '\n' + f'<b>Кличка:</b> {pet.name if pet.name is not None else "нет имени"}'
-def get_pet_age(pet: Pet):      return '\n' + f'<b>Возраст:</b> {pet.age}'
-def get_pet_weight(pet: Pet):   return '\n' + f'<b>Вес:</b> {pet.weight}'
+def get_pet_age(pet: Pet):      
+    if pet.age is None:
+        return ''
+    return '\n' + f'<b>Возраст:</b> {pet.age}'
+def get_pet_weight(pet: Pet):   
+    if pet.weight is None:
+        return ''
+    return '\n' + f'<b>Вес:</b> {pet.weight}'
+
 def get_pet_city(pet: Pet):     return '\n' + f'<b>Город:</b> {pet.city}'
 def get_pet_vaccinations(pet: Pet):     return '\n' + f'<b>Вакцинация:</b> {pet.vaccinations if pet.vaccinations is not None else "нет информации"}'
 def get_pet_special_care(pet: Pet):     return '\n' + f'<b>Особый уход:</b> {pet.special_care if pet.special_care is not None else "не требуется"}'
-
-
 
 def get_pet_chip(pet: Pet):
     if pet.has_chip is not None:

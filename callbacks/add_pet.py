@@ -2,6 +2,10 @@ from aiogram.filters.callback_data import CallbackData
 from uuid import UUID
 
 
+class SkipButtonCallback(CallbackData, prefix='skip'):
+    skip: bool = True
+
+
 class PetGenderCallback(CallbackData, prefix='pet_gender'):
     pet_gender: str
 
@@ -50,6 +54,9 @@ class PetTypeCallback(CallbackData, prefix='pet_type'):
 
 class AgreeDescriptionCallback(CallbackData, prefix='description'):
     agree: bool
+
+class WriteOwnDescriptionCallback(CallbackData, prefix='own_description'):
+    ...
 
 
 class PreviousButtonCallback(CallbackData, prefix='previous'):
