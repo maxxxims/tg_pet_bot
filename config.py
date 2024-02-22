@@ -18,6 +18,7 @@ MSG_AFTER_REGISTRATION = """Чтобы добавить питомца, введ
 MSG_PET_DESCRIPTION = """Выберите необходимый пункт"""
 
 def load_bot_token():
+    return "6854578710:AAGWnQLBDx3qie1cpbkg3kc0qrbusoEe65g"
     load_dotenv()
     return os.getenv("OLD_BOT_TOKEN")
 

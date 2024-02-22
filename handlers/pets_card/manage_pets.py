@@ -33,6 +33,8 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
     
     pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0)
 
+    #print('\n' * 5)
+    #print(f'USER ID = {query.from_user.id}, pet owner id = {pet.volunteer_tg_id}')
     if pet is None:
         await query.answer(text='Вы не добавили ни одного питомца!', show_alert=True)
         await query.message.delete()
