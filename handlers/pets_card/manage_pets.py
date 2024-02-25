@@ -7,23 +7,23 @@ from aiogram.fsm.context import FSMContext
 from database import volunteer_table, pet_table, admin_table
 from callbacks import *
 from utils import make_pet_description, navigation_button_function
-
+from middlewares import AddUserNameMiddleware
+from config import  get_owner_tg_id
 
 router = Router()
+router.callback_query.middleware(AddUserNameMiddleware())
+
 
 
 MSG = "Список доступных команд: \n/dog - поиск собаки\n/cat - поиск кошки\n/new - добавить питомца"
+OWNER_ID = get_owner_tg_id()
 
 
 @router.message(StateFilter(None), Command('pets'))
 async def cmd_pets(message: Message, state: FSMContext):
     kb = get_choosing_type_of_my_pets()
     await message.answer(text='Выберите необходимый пункт', reply_markup=kb)
-    # await message.answer(text = f'{message.from_user.username} and @{message.from_user.username},')
-    # await message.answer(text = f'<a href="tg://user?id={message.from_user.id}">USER</a> ,')
-    # await message.answer(text = f'<a href="https://t.me/{message.from_user.username}">USER</a> ,')
-
-
+   
 @router.callback_query(StateFilter(None), ShowVolunteerPetsCallback.filter())
 async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_data: ShowVolunteerPetsCallback):
     is_volunteer = await volunteer_table.is_volounteer(query.from_user.id)
@@ -31,7 +31,10 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         await query.answer(text='Вы не являетесь волонтером', show_alert=False)
         return
     
-    pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0)
+    if query.from_user.id != OWNER_ID:
+        pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0)
+    else:
+        pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0, owner=True)
 
     #print('\n' * 5)
     #print(f'USER ID = {query.from_user.id}, pet owner id = {pet.volunteer_tg_id}')
@@ -40,7 +43,6 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         await query.message.delete()
         return
     description = make_pet_description(pet)
-    # keyboard = get_kb_for_notification(pet_type='any', offset=0)
     keyboard = get_navigation_kb_for_volunteer(uuid=pet.uuid, offset=0)
     await query.message.answer_photo(
         photo=pet.pet_photo_id,
@@ -48,7 +50,6 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         parse_mode="HTML",
         reply_markup=keyboard
     )
-
     await query.message.delete()
 
 
@@ -60,8 +61,11 @@ async def show_notifications_volunteer(query: CallbackQuery, state: FSMContext, 
         return
     
     new_offset = callback_data.offset + callback_data.ofsset_delta
-    pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=new_offset)
-    
+    if query.from_user.id != OWNER_ID:
+        pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=new_offset)
+    else:
+        pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=new_offset, owner=True)
+
     if pet is None:
         await query.answer(text='Больше нет добавленных питомцев!', show_alert=True)
         return

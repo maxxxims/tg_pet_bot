@@ -74,3 +74,11 @@ async def finish_registration(tg_id: int):
             await session.execute(update(Volunteer).values(registration_finished=True).where(
                 Volunteer.tg_id == tg_id
             ))
+
+
+async def update_column(tg_id: int, **kwargs):
+    async with async_session() as session:
+            await session.execute(update(Volunteer).values(**kwargs).where(
+                Volunteer.tg_id == tg_id
+            ))
+            await session.commit()

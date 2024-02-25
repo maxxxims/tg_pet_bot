@@ -9,6 +9,7 @@ class Volunteer(Base):
     user_uuid: Mapped[UUID] = mapped_column(primary_key=True)
     tg_id: Mapped[int] = mapped_column(nullable=False)
     nick: Mapped[str] = mapped_column(nullable=False)
+    username: Mapped[str] = mapped_column(nullable=True, default=None)
 
     name: Mapped[str] = mapped_column(default=None, nullable=True)
     surname: Mapped[str] = mapped_column(default=None, nullable=True)

@@ -12,14 +12,15 @@ from models import Pet
 from utils import make_pet_description, get_corrected_city
 from send_notification import send_pet_card_to_admins
 from config import MSG_PET_DESCRIPTION
+from middlewares import AddUserNameMiddleware
 
 
 router = Router()
+router.callback_query.middleware(AddUserNameMiddleware())
 
 
 @router.message(StateFilter(None), Command('new'))
 async def cmd_new(message: Message, state: FSMContext):
-    # await message.answer(text=f'Выбе {message.date}')
     if not await volunteer_table.is_volounteer(message.from_user.id):
         await message.answer(text='Только волонтёры могут добавлять питомцев')
         return
@@ -49,7 +50,7 @@ async def choose_pet_gender(query: CallbackQuery, state: FSMContext, callback_da
                             AddPet.choosing_pet_castration, AddPet.choosing_pet_photo), F.text)
 async def choose_pet_gender_stop(message: Message, state: FSMContext):
     # await message.delete()
-    await message.answer(text='fffffffffff Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
+    await message.answer(text='Вы не нажали на кнопку, заполнение карточки питомца остановлено. Введите последнюю команду повторно')
     data = await state.get_data()
     uuid = data['uuid']
     await pet_table.delete_pet(uuid)
@@ -293,7 +294,7 @@ async def make_prompt(message: Message, state: FSMContext):
     description = await make_description(pet) #message.text #+ 'description'
 
     await pet_table.update_pet_description(description, uuid)
-    await message.answer(text=f'Описание питомца: \n{description}',
+    await message.answer(text=f'{description}',
                          )
     await message.answer(text=MSG_PET_DESCRIPTION,
         reply_markup=get_agree_description_kb()
@@ -334,7 +335,7 @@ async def agree_prompt(query: CallbackQuery, state: FSMContext, callback_data: A
         try:    await query.message.delete()
         except:  ...
 
-        await query.message.answer(text=f'Описание питомца: \n{new_description}')
+        await query.message.answer(text=f'{new_description}')
 
         await query.message.answer(
             text=MSG_PET_DESCRIPTION, reply_markup=get_agree_description_kb()

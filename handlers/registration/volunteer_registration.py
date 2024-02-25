@@ -28,6 +28,7 @@ async def cmd_registration_volounteer(query: CallbackQuery, state: FSMContext, c
         await query.answer(text='Вы уже зарегистрированы как волонтёр')
         return
     await volunteer_table.add_volounteer(query.from_user.id, query.from_user.full_name)
+    await volunteer_table.update_column(query.from_user.id, username=query.from_user.username)
     await query.message.answer(text='Введите Ваше имя')
     await state.set_state(VolunteerRegistration.writing_name)
     await query.message.delete()

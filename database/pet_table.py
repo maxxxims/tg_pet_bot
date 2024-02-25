@@ -70,14 +70,16 @@ async def delete_pet_card(uuid: UUID) -> Pet:
 
 
 
-async def get_volinteer_pets(tg_id: int, offset: int) -> Pet:
+async def get_volinteer_pets(tg_id: int, offset: int, owner: bool = False) -> Pet:
     async with async_session() as session:
-        # pets = (await session.execute(select(Pet).options(joinedload(
-        #     Pet.volunteer)).where(Volunteer.tg_id == tg_id, Pet.available == True).offset(offset))).scalars().first()
-        # PROD VERSION #
-        pets = (await session.execute(select(Pet).options(joinedload(
-            Pet.volunteer)).where(
-                and_(Pet.volunteer_tg_id == tg_id, Pet.available == True)).offset(offset))).scalars().first()
+        if owner:
+            pets = (await session.execute(select(Pet).options(joinedload(
+                Pet.volunteer)).where(Volunteer.tg_id == tg_id, Pet.available == True).offset(offset))).scalars().first()
+            # PROD VERSION #
+        else:
+            pets = (await session.execute(select(Pet).options(joinedload(
+                Pet.volunteer)).where(
+                    and_(Pet.volunteer_tg_id == tg_id, Pet.available == True)).offset(offset))).scalars().first()
         return pets
 
 
