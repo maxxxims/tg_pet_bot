@@ -11,14 +11,14 @@ async def navigation_button_function(
         query: CallbackQuery,
         callback_data: NavigationButtonCallback,
         keyboard: InlineKeyboardMarkup,
-        pet: Pet, new_offset: int = 0, show_alert: bool = True
+        pet: Pet, new_offset: int = 0, show_alert: bool = True, to_admin: bool = False
         ):
     
     if pet is None:
         #await query.message.answer(text='Больше нет доступных питомцев')
         await query.answer(text='Больше нет доступных питомцев', show_alert=show_alert)
         return
-    description = make_pet_description(pet)
+    description = make_pet_description(pet, to_admin=to_admin)
     try:    await query.message.delete()
     except:  ...
     await query.message.answer_photo(

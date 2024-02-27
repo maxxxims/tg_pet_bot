@@ -58,7 +58,7 @@ async def cmd_new(message: Message, state: FSMContext, from_callback: bool = Fal
 
 @router.message(StateFilter(None), Command('statistics'))
 async def cmd_statistics(message: Message, state: FSMContext):
-    df_pet_table, df_volunteer_table, df_admin_table = await statistic.get_statistics()
+    df_pet_table, df_volunteer_table, df_admin_table, df_pet2admin_table = await statistic.get_statistics()
 
     volunteers_number = len(df_volunteer_table)
     pets_number = len(df_pet_table)
@@ -68,6 +68,13 @@ async def cmd_statistics(message: Message, state: FSMContext):
         lambda x: np.sum(df_pet_table['volunteer_tg_id'] == x))
     
     df_volunteer_table.drop(columns=['tg_id'], inplace=True)
+
+    print(df_pet2admin_table.head())
+
+    df_admin_table['reposted_pets'] = df_admin_table['admin_tg_id'].map( lambda row:
+        np.sum(df_pet2admin_table['admin_tg_id'] == row)
+    )
+    df_admin_table.drop(columns=['admin_tg_id'], inplace=True)
 
     # await message.answer(
     #     text=f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'

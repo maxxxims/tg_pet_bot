@@ -6,7 +6,7 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from callbacks import NavigationButtonCallback, StopNavigationCallback, ShowPetsCallback, OffNotificationCallback, MyPetsCloseCallback, \
     AdminRepostPetCallback
-from database import pet_table, admin_table
+from database import pet2admin_table, pet_table, admin_table
 from keyboards.manage_pets_kb import get_navigation_kb_for_volunteer 
 # from models import Pet
 from utils import make_pet_description, navigation_button_function
@@ -48,11 +48,13 @@ async def stop_notifications(query: CallbackQuery, state: FSMContext, callback_d
     
 @router.callback_query(StateFilter(None), AdminRepostPetCallback.filter())
 async def admin_reposted_pet(query: CallbackQuery, state: FSMContext, callback_data: AdminRepostPetCallback):
-    #await query
-    #await query.message.answer(text='Вы отключили уведомления')
-    # await query.message.delete()
     await query.answer(text='Спасибо, вы делаете мир лучше', show_alert=False)
-    if callback_data.delete_msg:
-        await query.message.delete()
+    #if callback_data.delete_msg:
+    await query.message.delete()
 
+    has_raw = await pet2admin_table.has_raw(query.from_user.id, callback_data.pet_uuid)
+    if not has_raw:
+        await pet2admin_table.register_sent_msg(query.from_user.id, callback_data.pet_uuid, reposted=True)
+    else:
+        await pet2admin_table.repost_card(query.from_user.id, callback_data.pet_uuid)
 

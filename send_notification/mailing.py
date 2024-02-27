@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram import Bot
 from models import Admin
 from keyboards import get_show_notification_kb, get_notification_kb_for_admin
-from database import admin_table
+from database import admin_table, pet2admin_table
 from models import Pet
 from utils import make_pet_description
 
@@ -45,13 +45,14 @@ async def send_pet_card_to_admins(bot: Bot, pet: Pet, city: str):
     if admin_list is None:
         return
     text = '<u><b>Появилась новая карточка питомца!</b></u> \n' + make_pet_description(pet)
-    keyboard = get_notification_kb_for_admin()
+    keyboard = get_notification_kb_for_admin(pet_uuid=pet.uuid)
     for admn in admin_list:
         try:
             await bot.send_photo(chat_id=admn.admin_tg_id, photo=pet.pet_photo_id,
                         caption=text,
                         parse_mode="HTML",
                         reply_markup=keyboard)
+            await pet2admin_table.register_sent_msg(admn.admin_tg_id, pet.uuid)
         except Exception as e:
             print(e)
         await asyncio.sleep(DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS)

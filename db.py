@@ -30,11 +30,17 @@ async def drop_db():
         print(e)
 
 async def main():
-    from models import Pet
+    from models import Pet, Volunteer, Admin, Pet2Volunteer
     from uuid import UUID
-    from sqlalchemy import select, insert, update
+    from sqlalchemy import select, insert, update, text
     await init_db()
 
+    async with async_session() as session:
+        async with session.begin():
+            res = (await session.execute(select(Pet2Volunteer).where(
+                Pet2Volunteer.admin_tg_id == 683099207
+            ))).first() is not None
+    print(res)
 
 if __name__ == "__main__":
     asyncio.run(main())

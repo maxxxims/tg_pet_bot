@@ -10,4 +10,5 @@ class OffNotificationCallback(CallbackData, prefix='off_notification'):
     ...
 
 class AdminRepostPetCallback(CallbackData, prefix='admin_reposted'):
+    pet_uuid: UUID
     delete_msg: bool = False

@@ -38,8 +38,15 @@ def get_owner(pet: Pet):
     else:
         return '<b>Владелец: </b>' + f'@{pet.volunteer.username}'
 
-def make_pet_description(pet: Pet):
-    user_name = f'[{pet.volunteer.nick}](tg://user?id={str({pet.volunteer_tg_id})})'
+
+def get_onwer_to_admin(pet: Pet):
+    if pet.username is None:
+        return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.nick}</a>'
+    else:
+        return '<b>Владелец: </b>' + f'@{pet.username}'
+
+def make_pet_description(pet: Pet, to_admin: bool = False):
+    #user_name = f'[{pet.volunteer.nick}](tg://user?id={str({pet.volunteer_tg_id})})'
     #user_name = f'[{pet.owner_nick}](tg://user?id={str({pet.owner_id})})'
     gender = get_pet_gender(pet)
     name = get_pet_name(pet)
@@ -50,7 +57,10 @@ def make_pet_description(pet: Pet):
     castration = get_pet_castration(pet)
     special_care = get_pet_special_care(pet)
     city = get_pet_city(pet)
-    owner = get_owner(pet)
+    if to_admin:
+        owner = get_onwer_to_admin(pet)
+    else:
+        owner = get_owner(pet)
 
     text = pet.description + '\n' + ' \n' + '<u><b>Дополнительная информация:</b></u>'
     
