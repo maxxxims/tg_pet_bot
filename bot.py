@@ -23,12 +23,6 @@ async def check_gpt_server():
             
 
 def get_bot_commands():
-    # bot_commands = [
-    #     types.BotCommand(command="/dog", description="Поиск собаки"),
-    #     types.BotCommand(command="/cat", description="Поиск кошки"),
-    #     types.BotCommand(command="/new", description="Добавить питомца"),
-    #     types.BotCommand(command="/registration", description="Регистрация")
-    # ]
     bot_commands = [
         types.BotCommand(command="/registration", description="Регистрация"),
         types.BotCommand(command="/pets", description="Посмотреть карточки питомцев"),

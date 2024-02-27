@@ -26,6 +26,9 @@ def get_choosing_default_city_kb(default_city: str):
         inline_keyboard=[
             [
                 InlineKeyboardButton(text=default_city, callback_data=PetCityCallback(pet_city=default_city).pack())
+            ],
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(new_stage='choose_pet_special_care').pack())
             ]
         ]
     )

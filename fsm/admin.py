@@ -21,7 +21,9 @@ class AddPet(StatesGroup):
     writing_own_description = State()
     choosing_pet_photo = State()
 
-
+    @classmethod
+    def get_all_states(cls):
+        return [state for state in cls.__dict__.values() if isinstance(state, State)]
 
 class AdminRegistration(StatesGroup):
     writing_channel_name = State()

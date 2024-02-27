@@ -1,10 +1,10 @@
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ContentType, InputFile, FSInputFile
-from keyboards import get_pet_navigation_kb, get_profile_type_kb
+from keyboards import get_pet_navigation_kb, get_profile_type_kb, get_pet_kb
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from database import volunteer_table, statistic
+from database import volunteer_table, statistic, pet_table
 from fsm import VolunteerRegistration, AddPet
 from aiogram.methods import SendMessage
 import numpy as np
@@ -29,6 +29,11 @@ async def cmd_start(message: Message, state: FSMContext):
 # async def cmd_info(message: Message, state: FSMContext):
 #     await message.answer(text=MSG)
 
+
+# @router.message(StateFilter('*'), Command('exit'))
+# async def cmd_exit(message: Message, state: FSMContext):
+#     await message.answer(text=MSG)
+#     await state.set_state(None)
     
 
 @router.message(StateFilter(None), Command('registration'))
@@ -36,6 +41,19 @@ async def cmd_start_registration(message: Message, state: FSMContext):
     await message.answer(text='Выберите роль для регистрации',
                          reply_markup=get_profile_type_kb())
 
+
+@router.message(StateFilter(None), Command('new'))
+async def cmd_new(message: Message, state: FSMContext, from_callback: bool = False):
+    if not from_callback:
+        if not await volunteer_table.is_volounteer(message.from_user.id):
+            await message.answer(text='Только волонтёры могут добавлять питомцев')
+            return
+        uuid = await pet_table.add_new_pet(message.from_user.id)
+        await state.update_data(uuid=uuid)
+
+    await message.answer(text='Выберите тип питомца',
+                         reply_markup=get_pet_kb(uuid=uuid))
+    await state.set_state(AddPet.choosing_pet_type)
 
 
 @router.message(StateFilter(None), Command('statistics'))

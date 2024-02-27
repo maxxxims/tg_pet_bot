@@ -1,6 +1,6 @@
 from aiogram.filters.callback_data import CallbackData
 from uuid import UUID
-
+from aiogram.fsm.state import State
 
 class SkipButtonCallback(CallbackData, prefix='skip'):
     skip: bool = True
@@ -81,3 +81,8 @@ class StopNavigationCallback(CallbackData, prefix='stop'):
 
 class AddFavouriteCallback(CallbackData, prefix='favourite'):
     uuid: UUID
+
+
+
+class SkipRegistrationStageCallback(CallbackData, prefix='previous'):
+    new_stage: str

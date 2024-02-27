@@ -35,9 +35,6 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0)
     else:
         pet = await pet_table.get_volinteer_pets(query.from_user.id, offset=0, owner=True)
-
-    #print('\n' * 5)
-    #print(f'USER ID = {query.from_user.id}, pet owner id = {pet.volunteer_tg_id}')
     if pet is None:
         await query.answer(text='Вы не добавили ни одного питомца!', show_alert=True)
         await query.message.delete()
@@ -130,13 +127,8 @@ async def show_notifications_any(query: CallbackQuery, state: FSMContext, callba
     new_offset = callback_data.offset + callback_data.ofsset_delta
     pet = await pet_table.get_available_pet_in_city(city, offset=new_offset)
     
-    # await query.message.delete()
-    #keyboard = get_pet_navigation_kb(pet_type=callback_data.pet_type, offset=new_offset, uuid=pet.uuid)
-
     keyboard = get_kb_for_notification(send_to='admin', offset=new_offset)
-    # else:
-    #     keyboard = get_navigation_kb_for_volunteer(uuid=pet.uuid, offset=new_offset)
-
+    
     await navigation_button_function(query, callback_data, keyboard, pet, new_offset=new_offset)
     await query.answer()
 

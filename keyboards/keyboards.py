@@ -6,6 +6,7 @@ import emoji
 #     StopNavigationCallback, AddFavouriteCallback, NavigationButtonCallback
 from callbacks import *
 from uuid import UUID
+from fsm import AddPet
 
 
 def get_pet_kb(uuid: UUID) -> InlineKeyboardMarkup:
@@ -78,7 +79,12 @@ def get_choosing_gender_kb():
             [
                 InlineKeyboardButton(text='Мальчик', callback_data=PetGenderCallback(pet_gender='мальчик').pack()),
                 InlineKeyboardButton(text='Девочка', callback_data=PetGenderCallback(pet_gender='девочка').pack()),
-            ]
+            ],
+            # [
+            #     InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(
+            #         new_stage='choosing_pet_type'
+            #     ).pack()),
+            # ]
         ]
     )
 
@@ -90,7 +96,15 @@ def get_choosing_castration_kb():
         inline_keyboard=[
             [
                 InlineKeyboardButton(text='Есть',  callback_data=PetCastrationCallback(pet_castration=True).pack()),
+                InlineKeyboardButton(text='Пропустить', callback_data=SkipRegistrationStageCallback(
+                    new_stage='choose_pet_special_care'
+                ).pack()),
                 InlineKeyboardButton(text='Нет', callback_data=PetCastrationCallback(pet_castration=False).pack()),
+            ],
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(
+                    new_stage='choose_pet_vaccinations'
+                ).pack()),
             ]
         ]
     )
@@ -103,7 +117,14 @@ def get_choosing_chip_kb():
         inline_keyboard=[
             [
                 InlineKeyboardButton(text='Да',  callback_data=PetChipCallback(pet_chip=True).pack()),
+                InlineKeyboardButton(text='Пропустить', callback_data=SkipRegistrationStageCallback(
+                    new_stage='choose_pet_castration').pack()),
                 InlineKeyboardButton(text='Нет', callback_data=PetChipCallback(pet_chip=False).pack()),
+            ],
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(
+                    new_stage='choose_pet_weight'
+                ).pack()),
             ]
         ]
     )
@@ -111,13 +132,58 @@ def get_choosing_chip_kb():
     return choose_chip_kb
 
 
-def get_skip_button(callback: CallbackData, default_text: str = 'Пропустить', **kwargs):
+def get_skip_button(callback: CallbackData, new_stage: str,
+                    default_text: str = 'Пропустить', **kwargs):
     skip_kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(text=default_text, callback_data=callback(skip=True, **kwargs).pack())
+            ],
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(new_stage=new_stage).pack())
             ]
         ]
     )
 
     return skip_kb
+
+
+
+def get_skip_button_and_back(back_stage: str, foward_stage: str,  foward_text: str = 'Пропустить'):
+    skip_kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text=foward_text, callback_data=SkipRegistrationStageCallback(new_stage=foward_stage).pack())
+            ],
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(new_stage=back_stage).pack())
+            ]
+        ]
+    )
+
+    return skip_kb
+
+
+
+def get_kb_for_photo():
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(new_stage='choose_pet_city').pack())
+            ]
+        ]
+    )
+
+    return kb
+
+
+def get_kb_for_description():
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text='⬅️ Назад', callback_data=SkipRegistrationStageCallback(new_stage='choose_pet_photo').pack())
+            ]
+        ]
+    )
+
+    return kb

@@ -15,7 +15,7 @@ from utils import make_pet_description, navigation_button_function
 
 router = Router()
 
-
+"""
 
 @router.callback_query(StateFilter(None), ShowPetsCallback.filter())
 async def show_notifications(query: CallbackQuery, state: FSMContext, callback_data: ShowPetsCallback):
@@ -44,7 +44,7 @@ async def stop_notifications(query: CallbackQuery, state: FSMContext, callback_d
     # await query.message.delete()
     await query.answer(text='Вы отключили уведомления', show_alert=False)
 
-
+"""
     
 @router.callback_query(StateFilter(None), AdminRepostPetCallback.filter())
 async def admin_reposted_pet(query: CallbackQuery, state: FSMContext, callback_data: AdminRepostPetCallback):

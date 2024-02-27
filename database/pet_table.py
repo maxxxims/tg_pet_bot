@@ -1,6 +1,6 @@
 from db import async_session
 from models import Pet, Volunteer
-from sqlalchemy import select, insert, update, delete, and_
+from sqlalchemy import select, insert, update, delete, and_, desc
 from uuid import uuid4, UUID
 from sqlalchemy.orm import joinedload
 
@@ -74,12 +74,14 @@ async def get_volinteer_pets(tg_id: int, offset: int, owner: bool = False) -> Pe
     async with async_session() as session:
         if owner:
             pets = (await session.execute(select(Pet).options(joinedload(
-                Pet.volunteer)).where(Volunteer.tg_id == tg_id, Pet.available == True).offset(offset))).scalars().first()
+                Pet.volunteer)).where(Volunteer.tg_id == tg_id, Pet.available == True
+                                      ).order_by(Pet.created_time.desc()).offset(offset))).scalars().first()
             # PROD VERSION #
         else:
             pets = (await session.execute(select(Pet).options(joinedload(
                 Pet.volunteer)).where(
-                    and_(Pet.volunteer_tg_id == tg_id, Pet.available == True)).offset(offset))).scalars().first()
+                    and_(Pet.volunteer_tg_id == tg_id, Pet.available == True)
+                    ).order_by(Pet.created_time.desc()).offset(offset))).scalars().first()
         return pets
 
 
