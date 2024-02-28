@@ -270,35 +270,35 @@ async def previous_stage(query: CallbackQuery, state: FSMContext,
                         callback_data: SkipRegistrationStageCallback, uuid: UUID):
     print(f'calback_data = {callback_data}')
     if callback_data.new_stage == 'choose_pet_gender':
-        await choose_pet_gender(query, state, callback_data, uuid, from_callback=True)
+        msg = await choose_pet_gender(query, state, callback_data, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_name':
-        await choose_pet_name(query, state, callback_data, uuid, from_callback=True)
+        msg = await choose_pet_name(query, state, callback_data, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_age':
         # print('HERE!')
-        await choose_pet_age(query.message, state, uuid, from_callback=True)
+        msg = await choose_pet_age(query.message, state, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_weight':
-        await choose_pet_weight(query.message, state, uuid, from_callback=True)
+        msg = await choose_pet_weight(query.message, state, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_chip':
-        await choose_pet_chip(query.message, state, uuid, from_callback=True)
+        msg = await choose_pet_chip(query.message, state, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_vaccinations':
-        await choose_pet_vaccinations(query, state, callback_data, uuid, from_callback=True)
+        msg = await choose_pet_vaccinations(query, state, callback_data, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_castration':
-        await choose_pet_castration(query.message, state, uuid, from_callback=True)
+        msg = await choose_pet_castration(query.message, state, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_special_care':
         print(f'HERE!!!!!!!!!!')
-        await choose_pet_special_care(query, state, callback_data, uuid, from_callback=True)
+        msg = await choose_pet_special_care(query, state, callback_data, uuid, from_callback=True)
     elif callback_data.new_stage == 'choose_pet_city':
         user_id = query.from_user.id
-        await choose_pet_city(query.message, state, uuid, from_callback=True, user_id=user_id)
+        msg = await choose_pet_city(query.message, state, uuid, from_callback=True, user_id=user_id)
     elif callback_data.new_stage == 'choose_pet_photo':
         user_id = query.from_user.id
         default_city = await volunteer_table.get_volunteer_city(user_id)
-        await choose_pet_photo(query.message, state, uuid, from_callback=True, default_city=default_city)
+        msg = await choose_pet_photo(query.message, state, uuid, from_callback=True, default_city=default_city)
     #elif callback_data.new_stage == 'choose_pet_vaccinations':
     #    await choose_pet_vaccinations(query, state, callback_data, uuid=uuid, from_callback=True)
     # await query.message.delete()
     await query.answer()
-
+    return msg
 
 
 @router.message(StateFilter(*AddPet.get_all_states()))
