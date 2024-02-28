@@ -136,7 +136,7 @@ async def choose_pet_city(message: Message, state: FSMContext,
                          reply_markup=get_choosing_default_city_kb(default_city=default_city))
     await state.set_state(AddPet.choosing_pet_city)
     if from_callback:
-        return
+        return msg
     await pet_table.update_pet_column(uuid, special_care=message.text)
     return msg
 

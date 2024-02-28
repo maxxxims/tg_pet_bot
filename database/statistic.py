@@ -27,7 +27,7 @@ async def get_statistics():
         df_pet_table = pd.DataFrame(pet_list)#, columns=['uuid', 'city', 'pet_type', 'age'])
         df_volunteer_table = pd.DataFrame(volunter_list, columns=['name', 'surname', 'nick', 'city', 'registered_time', 'tg_id'])
         df_admin_table = pd.DataFrame(admin_list, columns=['channel_name', 'admin_nick', 'city', 'admin_tg_id'])
-        df_pet2admin_table = pd.DataFrame(pet2admin_list)
+        df_pet2admin_table = pd.DataFrame(pet2admin_list, columns=['admin_tg_id', 'pet_uuid', 'reposted'])
 
         return df_pet_table, df_volunteer_table, df_admin_table, df_pet2admin_table
         # {

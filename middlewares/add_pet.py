@@ -22,8 +22,8 @@ class AddingPetMiddleware(BaseMiddleware):
         #if event.message.text != '/exit':
         sent_msg =  await handler(event, data)
         if sent_msg is not None:
-           print('******************** ADDED SENT_MSG')
-           print(f'msg id = {sent_msg.message_id}; chat_id = {sent_msg.chat.id}')
+           #print('******************** ADDED SENT_MSG')
+           #print(f'msg id = {sent_msg.message_id}; chat_id = {sent_msg.chat.id}')
            await state.update_data(sent_msg_id=sent_msg.message_id)
         else:
             await state.update_data(sent_msg_id=None)
@@ -54,8 +54,8 @@ class AddingPetSkipTextMiddleware(BaseMiddleware):
 
         state_data = await state.get_data()
         if state_data.get('sent_msg_id', None) is not None:
-            print('********************')
-            print(f'msg id = {event.chat.id}; chat_id = {state_data.get("sent_msg_id")}')
+            #print('********************')
+            #print(f'msg id = {event.chat.id}; chat_id = {state_data.get("sent_msg_id")}')
             await data['bot'].delete_message(chat_id=event.chat.id,
                                         message_id=state_data.get('sent_msg_id'))
             await state.update_data(sent_msg_id=None)

@@ -41,6 +41,7 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         return
     description = make_pet_description(pet)
     keyboard = get_navigation_kb_for_volunteer(uuid=pet.uuid, offset=0)
+    #print('here \n'*5)
     await query.message.answer_photo(
         photo=pet.pet_photo_id,
         caption=description,
@@ -100,14 +101,14 @@ async def show_admin_pets(query: CallbackQuery, state: FSMContext, callback_data
         return
     
     city = await admin_table.get_admin_city(query.from_user.id)
-    #pet = await pet_table.get_available_pet_in_city(city, offset=0)
-    pet = await pet2admin_table.get_admin_pets(city, offset=0, admin_tg_id=query.from_user.id)
+    pet = await pet_table.get_available_pet_in_city(city, offset=0)
+    ##pet = await pet2admin_table.get_admin_pets(city, offset=0, admin_tg_id=query.from_user.id)
     await query.message.delete()
 
     if pet is None:
         await query.answer(text='Нет доступных питомцев', show_alert=True)
         return
-    description = make_pet_description(pet, to_admin=True)
+    description = make_pet_description(pet, to_admin=False)##
     keyboard = get_kb_for_notification(send_to='admin', offset=0, pet_uuid=pet.uuid)
 
     await query.message.answer_photo(
@@ -126,15 +127,15 @@ async def show_notifications_any(query: CallbackQuery, state: FSMContext, callba
         await query.answer()
         return
     new_offset = callback_data.offset + callback_data.ofsset_delta
-    #pet = await pet_table.get_available_pet_in_city(city, offset=new_offset)
-    pet = await pet2admin_table.get_admin_pets(city, offset=new_offset, admin_tg_id=query.from_user.id)
+    pet = await pet_table.get_available_pet_in_city(city, offset=new_offset)
+    ##pet = await pet2admin_table.get_admin_pets(city, offset=new_offset, admin_tg_id=query.from_user.id)
     if pet is None:
         await query.answer(text='Больше нет доступных питомцев', show_alert=True)
         return
 
     keyboard = get_kb_for_notification(send_to='admin', offset=new_offset, pet_uuid=pet.uuid)
     
-    await navigation_button_function(query, callback_data, keyboard, pet, new_offset=new_offset, to_admin=True)
+    await navigation_button_function(query, callback_data, keyboard, pet, new_offset=new_offset, to_admin=False)##
     await query.answer()
 
     
