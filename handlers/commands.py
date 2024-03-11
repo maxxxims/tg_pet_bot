@@ -58,31 +58,32 @@ async def cmd_new(message: Message, state: FSMContext, from_callback: bool = Fal
 
 @router.message(StateFilter(None), Command('statistics'))
 async def cmd_statistics(message: Message, state: FSMContext):
-    df_pet_table, df_volunteer_table, df_admin_table, df_pet2admin_table = await statistic.get_statistics()
+    if message.from_user.id in [1737030496, 683099207, 1013170672, 272240371, 353007395]:
+        df_pet_table, df_volunteer_table, df_admin_table, df_pet2admin_table = await statistic.get_statistics()
 
-    volunteers_number = len(df_volunteer_table)
-    pets_number = len(df_pet_table)
-    channels_number = len(df_admin_table)
-    
-    df_volunteer_table['added_pets_number'] = df_volunteer_table['tg_id'].map(
-        lambda x: np.sum(df_pet_table['volunteer_tg_id'] == x))
-    
-    df_volunteer_table.drop(columns=['tg_id'], inplace=True)
+        volunteers_number = len(df_volunteer_table)
+        pets_number = len(df_pet_table)
+        channels_number = len(df_admin_table)
+        
+        df_volunteer_table['added_pets_number'] = df_volunteer_table['tg_id'].map(
+            lambda x: np.sum(df_pet_table['volunteer_tg_id'] == x))
+        
+        df_volunteer_table.drop(columns=['tg_id'], inplace=True)
 
-    print(df_pet2admin_table.head())
+        print(df_pet2admin_table.head())
 
-    df_admin_table['reposted_pets'] = df_admin_table['admin_tg_id'].map( lambda row:
-        np.sum(df_pet2admin_table['admin_tg_id'] == row)
-    )
-    df_admin_table.drop(columns=['admin_tg_id'], inplace=True)
+        df_admin_table['reposted_pets'] = df_admin_table['admin_tg_id'].map( lambda row:
+            np.sum(df_pet2admin_table['admin_tg_id'] == row)
+        )
+        df_admin_table.drop(columns=['admin_tg_id'], inplace=True)
 
-    # await message.answer(
-    #     text=f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'
-    # )
+        # await message.answer(
+        #     text=f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'
+        # )
 
-    with pd.ExcelWriter("data/statistics.xlsx") as writer:
-        df_volunteer_table.to_excel(writer, sheet_name="Волонтёры", index=False)
-        df_admin_table.to_excel(writer, sheet_name="Администраторы каналов", index=False)
+        with pd.ExcelWriter("data/statistics.xlsx") as writer:
+            df_volunteer_table.to_excel(writer, sheet_name="Волонтёры", index=False)
+            df_admin_table.to_excel(writer, sheet_name="Администраторы каналов", index=False)
 
-    caption = f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'
-    await message.answer_document(FSInputFile('data/statistics.xlsx'), caption=caption)
+        caption = f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'
+        await message.answer_document(FSInputFile('data/statistics.xlsx'), caption=caption)
