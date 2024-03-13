@@ -70,7 +70,7 @@ async def cmd_statistics(message: Message, state: FSMContext):
         
         df_volunteer_table.drop(columns=['tg_id'], inplace=True)
 
-        print(df_pet2admin_table.head())
+        # print(df_pet2admin_table.head())
 
         df_admin_table['reposted_pets'] = df_admin_table['admin_tg_id'].map( lambda row:
             np.sum(df_pet2admin_table['admin_tg_id'] == row)

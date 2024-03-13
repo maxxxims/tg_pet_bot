@@ -12,7 +12,7 @@ class Volunteer(Base):
     username: Mapped[str] = mapped_column(nullable=True, default=None)
 
     name: Mapped[str] = mapped_column(default=None, nullable=True)
-    surname: Mapped[str] = mapped_column(default=None, nullable=True)
+    #surname: Mapped[str] = mapped_column(default=None, nullable=True)
     phone: Mapped[str] = mapped_column(default=None, nullable=True)
     city: Mapped[str] = mapped_column(default=None, nullable=True)
 

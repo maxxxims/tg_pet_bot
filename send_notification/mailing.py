@@ -44,7 +44,8 @@ async def send_pet_card_to_admins(bot: Bot, pet: Pet, city: str):
     admin_list = await admin_table.get_admins_for_notifications(city)
     if admin_list is None:
         return
-    text = '<u><b>Появилась новая карточка питомца!</b></u> \n' + make_pet_description(pet)
+    text = make_pet_description(pet)
+    greeting_text = '<b>Появилась новая карточка питомца!</b>'
     keyboard = get_notification_kb_for_admin(pet_uuid=pet.uuid)
     for admn in admin_list:
         try:
@@ -52,6 +53,7 @@ async def send_pet_card_to_admins(bot: Bot, pet: Pet, city: str):
                         caption=text,
                         parse_mode="HTML",
                         reply_markup=keyboard)
+            await bot.send_message(chat_id=admn.admin_tg_id, text=greeting_text, parse_mode="HTML")
             await pet2admin_table.register_sent_msg(admn.admin_tg_id, pet.uuid)
         except Exception as e:
             print(e)

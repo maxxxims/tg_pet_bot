@@ -10,6 +10,7 @@ class Admin(Base):
     admin_uuid: Mapped[UUID] = mapped_column(primary_key=True)
     admin_tg_id: Mapped[int] = mapped_column(nullable=False)
     admin_nick: Mapped[str] = mapped_column(nullable=False)
+    admin_username: Mapped[str] = mapped_column(nullable=False)
 
     channel_name: Mapped[str] = mapped_column(nullable=True)
     city: Mapped[str] = mapped_column(nullable=True)

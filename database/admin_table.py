@@ -5,11 +5,11 @@ from sqlalchemy.orm import joinedload
 from uuid import uuid4, UUID
 
 
-async def add_admin(admin_tg_id: int, admin_nick: str) -> UUID:
+async def add_admin(admin_tg_id: int, admin_nick: str, admin_username: str) -> UUID:
     admin_uuid = uuid4()
     async with async_session() as session:
         async with session.begin():
-            await session.execute(insert(Admin).values(admin_tg_id=admin_tg_id,
+            await session.execute(insert(Admin).values(admin_tg_id=admin_tg_id, admin_username=admin_username,
                                                         admin_uuid=admin_uuid, admin_nick=admin_nick))
     return admin_uuid
 

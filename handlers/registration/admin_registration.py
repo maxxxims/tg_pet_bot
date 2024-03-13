@@ -27,7 +27,7 @@ async def cmd_registration_admin(query: CallbackQuery, state: FSMContext, callba
         await query.answer(text='Вы уже зарегистрированы как администратор канала')
         return
     print(f'user id = {query.message.from_user.id}; user full name = {query.message.from_user.full_name}')
-    await admin_table.add_admin(query.from_user.id, query.from_user.full_name)
+    await admin_table.add_admin(query.from_user.id, query.from_user.full_name, query.from_user.username)
     await query.message.answer(text='Введите название канала')
     await state.set_state(AdminRegistration.writing_channel_name)
     await query.message.delete()

@@ -8,7 +8,7 @@ from datetime import datetime
 class Pet(Base):
     __tablename__ = "pets"
     uuid: Mapped[UUID] = mapped_column(primary_key=True)
-    volunteer_tg_id: Mapped[int] = mapped_column(ForeignKey('volunteers.tg_id'))
+    volunteer_tg_id: Mapped[int] = mapped_column(ForeignKey('volunteers.tg_id', ondelete='CASCADE', onupdate="CASCADE"))
     # volunteer_nick: Mapped[int] = mapped_column(ForeignKey('volunteers.nick'))
 
     pet_type: Mapped[str] = mapped_column(default=None, nullable=True)
@@ -33,4 +33,4 @@ class Pet(Base):
     created_time: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     available: Mapped[bool] = mapped_column(default=False)
 
-    volunteer: Mapped["Volunteer"] = relationship()#= relationship("Volunteer", back_populates="pets")
+    volunteer: Mapped["Volunteer"] = relationship(cascade='all, delete', passive_deletes=True)#= relationship("Volunteer", back_populates="pets")

@@ -34,22 +34,22 @@ async def cmd_registration_volounteer(query: CallbackQuery, state: FSMContext, c
     await query.message.delete()
     await query.answer()
 
+# @router.message(VolunteerRegistration.writing_name, F.text)
+# async def writing_name(message: Message, state: FSMContext):
+#     if message.text.startswith('/'):
+#         await message.answer(text='Пожалуйста завершите регистрацию для дальнейшего использования команд')
+#         return
+#     await volunteer_table.update_name(message.from_user.id, message.text)
+#     await message.answer(text='Введите Вашу фамилию')
+#     await state.set_state(VolunteerRegistration.writing_surname)
+
+
 @router.message(VolunteerRegistration.writing_name, F.text)
 async def writing_name(message: Message, state: FSMContext):
     if message.text.startswith('/'):
         await message.answer(text='Пожалуйста завершите регистрацию для дальнейшего использования команд')
         return
     await volunteer_table.update_name(message.from_user.id, message.text)
-    await message.answer(text='Введите Вашу фамилию')
-    await state.set_state(VolunteerRegistration.writing_surname)
-
-
-@router.message(VolunteerRegistration.writing_surname, F.text)
-async def writing_surname(message: Message, state: FSMContext):
-    if message.text.startswith('/'):
-        await message.answer(text='Пожалуйста завершите регистрацию для дальнейшего использования команд')
-        return
-    await volunteer_table.update_surname(message.from_user.id, message.text)
     await message.answer(text='Введите номер телефона')
     await state.set_state(VolunteerRegistration.writing_phone)
 
@@ -79,7 +79,7 @@ async def writing_city(message: Message, state: FSMContext):
     if len(corrected_city) == 0:
         await message.answer(text='Такой город не найден. Введите еще раз')
         return
-    await volunteer_table.update_city(message.from_user.id, message.text)
+    await volunteer_table.update_city(message.from_user.id, corrected_city)
     await volunteer_table.finish_registration(message.from_user.id)
     await message.answer(text='Поздравляем, регистрация завершена!' + '\n' + MSG_AFTER_REGISTRATION)
     #await message.answer(text=MSG_AFTER_REGISTRATION)

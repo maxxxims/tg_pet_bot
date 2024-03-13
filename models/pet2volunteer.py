@@ -8,6 +8,8 @@ from datetime import datetime
 class Pet2Volunteer(Base):
     __tablename__ = "pet2admin"
     id: Mapped[int] = mapped_column(primary_key=True)
-    pet_uuid: Mapped[UUID] = mapped_column(ForeignKey('pets.uuid', ondelete='cascade')) #, unique=False, nullable=False
-    admin_tg_id: Mapped[int] = mapped_column(ForeignKey('admins.admin_tg_id', ondelete='cascade')) #mapped_column(nullable=False)
+    pet_uuid: Mapped[UUID] = mapped_column(ForeignKey('pets.uuid', ondelete='CASCADE', onupdate="CASCADE")) #, unique=False, nullable=False
+    admin_tg_id: Mapped[int] = mapped_column(ForeignKey('admins.admin_tg_id', ondelete='CASCADE', onupdate="CASCADE")) #mapped_column(nullable=False)
     reposted: Mapped[bool] = mapped_column(default=False, nullable=False)
+    #pet: Mapped["Pet"] = relationship(cascade='all, delete', passive_deletes=True)
+    #admin: Mapped["Admin"] = relationship(cascade='all, delete', passive_deletes=True)
