@@ -29,19 +29,10 @@ async def get_info_from_pet(uuid: UUID) -> Pet:
     return pet
 
 
-async def get_available_pet(pet_type: str, offset: int) -> Pet:
-    """async with async_session() as session:
-        async with session.begin():
-            pets = (await session.execute(select(Pet.uuid, Pet.description,
-                                                      Pet.pet_photo_id, Pet.volunteer_nick, Pet.volunteer_tg_id
-                                                      ).where(Pet.pet_type == pet_type,
-                                                              Pet.available == True).offset(offset))).first()
-    return pets"""
-    async with async_session() as session:
-        # pets = (await session.execute(select(Pet).options(joinedload(Pet.volunteer)).where(
-        #     Pet.pet_type == pet_type, Pet.available == True).offset(offset))).first()   
+async def get_available_pet(offset: int) -> Pet:
+    async with async_session() as session:  
         pets = (await session.execute(select(Pet).options(joinedload(
-            Pet.volunteer)).where(Pet.pet_type == pet_type, Pet.available == True).offset(offset))).scalars().first()
+            Pet.volunteer)).where(Pet.available == True).offset(offset))).scalars().first()
         return pets
     
 

@@ -34,7 +34,6 @@ def get_bot_commands():
 
 async def main():
     token = load_bot_token()
-    # print(f'token = {token}')
     print('RUN BOT!')
     bot = Bot(token=token, parse_mode='HTML')
     dp = Dispatcher()
@@ -59,4 +58,3 @@ async def main():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
-    # asyncio.run(main())

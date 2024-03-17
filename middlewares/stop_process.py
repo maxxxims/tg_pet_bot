@@ -23,7 +23,6 @@ class StopProcessMiddleware(BaseMiddleware):
         if user_text is not None:
             if '/exit' in user_text:
                 await state.set_state(None)
-                # await event.answer(text='Просмотр питомцев завершен')
                 await self.exit_action(event, state, data)
                 return 
             else:
