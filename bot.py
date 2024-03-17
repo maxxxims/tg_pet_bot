@@ -46,7 +46,7 @@ async def main():
         )
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=get_bot_commands())
-    await drop_db()
+    # await drop_db()
     await init_db()
     connection_to_gpt = await check_gpt_server()
     print(f'connection_to_gpt = {connection_to_gpt}')
