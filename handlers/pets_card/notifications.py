@@ -9,9 +9,8 @@ from callbacks import NavigationButtonCallback, StopNavigationCallback, ShowPets
 from database import pet2admin_table, pet_table, admin_table
 from keyboards.manage_pets_kb import get_navigation_kb_for_volunteer 
 # from models import Pet
-from utils import make_pet_description, navigation_button_function
-# from pytz import timezone as tz
-# from datetime import datetime, date, timedelta
+from send_notification import send_feedback_to_volunteer
+
 
 router = Router()
 
@@ -48,13 +47,18 @@ async def stop_notifications(query: CallbackQuery, state: FSMContext, callback_d
     
 @router.callback_query(StateFilter(None), AdminRepostPetCallback.filter())
 async def admin_reposted_pet(query: CallbackQuery, state: FSMContext, callback_data: AdminRepostPetCallback):
-    await query.answer(text='Спасибо, вы делаете мир лучше', show_alert=False)
+    
     #if callback_data.delete_msg:
-    await query.message.delete()
-
-    has_raw = await pet2admin_table.has_raw(query.from_user.id, callback_data.pet_uuid)
-    if not has_raw:
+    pet_info = await pet_table.get_info_from_pet(callback_data.pet_uuid)
+    reposted = await pet2admin_table.has_reposted(query.from_user.id, callback_data.pet_uuid)
+    if reposted is None:
         await pet2admin_table.register_sent_msg(query.from_user.id, callback_data.pet_uuid, reposted=True)
+        await send_feedback_to_volunteer(query.bot, pet_info.volunteer_tg_id, pet_info.pet_photo_id)
+        await query.answer(text='Спасибо, уведомление отправлено волонтёру', show_alert=False)
     else:
-        await pet2admin_table.repost_card(query.from_user.id, callback_data.pet_uuid)
-
+        if not reposted:
+            await send_feedback_to_volunteer(query.bot, pet_info.volunteer_tg_id, pet_info.pet_photo_id)
+            await query.answer(text='Спасибо, уведомление отправлено волонтёру', show_alert=False)
+            await pet2admin_table.repost_card(query.from_user.id, callback_data.pet_uuid)
+        else:
+            await query.answer(text='Вы уже опубликовали это объявление', show_alert=False)

@@ -13,13 +13,6 @@ async def add_new_pet(volunteer_tg_id: int) -> UUID:
     return uuid
 
 
-# async def get_info_from_pet(uuid: UUID) -> Pet:
-#     async with async_session() as session:
-#         async with session.begin():
-#             pet = (await session.execute(select(Pet).where(Pet.uuid == uuid))).one()
-#     return pet
-
-
 async def get_info_from_pet(uuid: UUID) -> Pet:
     """async with async_session() as session:
         async with session.begin():

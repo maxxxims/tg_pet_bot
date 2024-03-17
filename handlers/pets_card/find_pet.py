@@ -10,20 +10,11 @@ from callbacks import PetTypeCallback, AgreeDescriptionCallback, NavigationButto
 from database import pet_table
 # from models import Pet
 from utils import make_pet_description, navigation_button_function
-# from pytz import timezone as tz
-# from datetime import datetime, date, timedelta
 
 router = Router()
 
 
-# def make_pet_description(pet: Pet):
-#     user_name = f'[{pet.owner_nick}](tg://user?id={str({pet.owner_id})})'
-#     text = pet.description + '\n' + 'Владелец: ' + f'[{pet.owner_nick}](tg://user?id={str(pet.owner_id)})'
-#     return text
-
-#    # await message.answer(text=f'[{message.from_user.full_name}](tg://user?id={str(message.from_user.id)}), @{message.from_user.full_name}',
-    #                     parse_mode="Markdown")
-
+"""
 @router.message(StateFilter(None), Command('dog'))
 async def cmd_dog(message: Message, state: FSMContext):
     pet = await pet_table.get_available_pet('dog', offset=0)
@@ -52,7 +43,7 @@ async def cmd_dog(message: Message, state: FSMContext):
         parse_mode="HTML",
         reply_markup=get_pet_navigation_kb(pet_type='cat', offset=0, uuid=pet.uuid)
     )
-
+"""
 
 @router.callback_query(StateFilter(None), NavigationButtonCallback.filter(F.pet_type != 'any'))
 async def navigation_button(query: CallbackQuery, state: FSMContext, callback_data: NavigationButtonCallback):

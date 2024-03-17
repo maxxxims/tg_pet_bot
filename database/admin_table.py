@@ -1,6 +1,6 @@
 from db import async_session
 from models import Volunteer, Pet, Admin
-from sqlalchemy import select, insert, update, exists
+from sqlalchemy import select, insert, update, exists, delete
 from sqlalchemy.orm import joinedload
 from uuid import uuid4, UUID
 
@@ -52,4 +52,11 @@ async def finish_registration(admin_tg_id: int):
                 await session.execute(update(Admin).values(registration_finished=True).where(
                     Admin.admin_tg_id == admin_tg_id
                 ))
-            # await session.commit()
+
+
+
+async def delete_admin(admin_tg_id: int):
+    async with async_session() as session:
+        async with session.begin():
+            await session.execute(delete(Admin).where(Admin.admin_tg_id == admin_tg_id))
+            await session.commit()

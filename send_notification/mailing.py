@@ -11,12 +11,6 @@ from utils import make_pet_description
 # NOTIFICATION_KEYBOARD = get_show_notification_kb()
 
 
-async def test(message: Message):
-    for i in range(5):
-        await message.answer(text=f'HELLOW IT IS {i} iteration!')
-        await asyncio.sleep(5)
-
-
 async def send_notification_to_admins(bot: Bot, admin_list: list = None, kb = None):
     #kb = get_show_notification_kb()
     for admn in admin_list:
@@ -58,4 +52,3 @@ async def send_pet_card_to_admins(bot: Bot, pet: Pet, city: str):
         except Exception as e:
             print(e)
         await asyncio.sleep(DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS)
-

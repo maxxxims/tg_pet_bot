@@ -24,15 +24,15 @@ async def repost_card(admin_tg_id: int, pet_uuid: UUID):
             )).values(reposted=True)
             )
 
-async def has_raw(admin_tg_id: int, pet_uuid: UUID):
+async def has_reposted(admin_tg_id: int, pet_uuid: UUID) -> Pet2Volunteer:
     async with async_session() as session:
         async with session.begin():
             has_raw = (await session.execute(
-                select(Pet2Volunteer).where(and_(
+                select(Pet2Volunteer.reposted).where(and_(
                     Pet2Volunteer.admin_tg_id == admin_tg_id,
                     Pet2Volunteer.pet_uuid == pet_uuid
                 ))
-            )).first() is not None
+            )).scalars().first()#is not None
     return has_raw
 
 async def get_admin_pets(admin_city: str, offset: int, admin_tg_id: int) -> Pet:

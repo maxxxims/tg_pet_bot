@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder, 
 from collections import defaultdict
 import emoji
 from callbacks import ShowAdminNotificationCallback, ShowVolunteerPetsCallback, StopNavigationCallback, \
-    NavigationButtonCallback, DeleteVolunteerPetCallback
+    NavigationButtonCallback, DeleteVolunteerPetCallback, AdministrationShowPetsCallback
 from uuid import UUID
 
 
@@ -15,6 +15,9 @@ def get_choosing_type_of_my_pets():
             ],
             [
                 InlineKeyboardButton(text='Показать уведомления о новых питомцах', callback_data=ShowAdminNotificationCallback().pack()),
+            ],
+            [
+                InlineKeyboardButton(text='Показать всех питомцев', callback_data=AdministrationShowPetsCallback().pack())
             ]
         ]
     )

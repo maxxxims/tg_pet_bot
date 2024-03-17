@@ -9,7 +9,6 @@ class Pet(Base):
     __tablename__ = "pets"
     uuid: Mapped[UUID] = mapped_column(primary_key=True)
     volunteer_tg_id: Mapped[int] = mapped_column(ForeignKey('volunteers.tg_id', ondelete='CASCADE', onupdate="CASCADE"))
-    # volunteer_nick: Mapped[int] = mapped_column(ForeignKey('volunteers.nick'))
 
     pet_type: Mapped[str] = mapped_column(default=None, nullable=True)
 

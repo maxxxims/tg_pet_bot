@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from handlers import commands, new_pet, find_pet, volunteer_registration, \
-admin_registration, notifications, manage_pets
+admin_registration, notifications, manage_pets, admin_monitoring
 from db import init_db, drop_db
 import logging
 import aiohttp
@@ -42,7 +42,7 @@ async def main():
         new_pet.router, #find_pet.router,
         commands.router,
         volunteer_registration.router, admin_registration.router,
-        notifications.router, manage_pets.router
+        notifications.router, manage_pets.router, admin_monitoring.router
         )
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=get_bot_commands())

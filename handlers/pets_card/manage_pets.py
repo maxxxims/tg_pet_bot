@@ -11,7 +11,7 @@ from middlewares import AddUserNameMiddleware
 from config import  get_owner_tg_id
 
 router = Router()
-router.callback_query.middleware(AddUserNameMiddleware())
+# router.callback_query.middleware(AddUserNameMiddleware())
 
 
 
