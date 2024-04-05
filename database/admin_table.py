@@ -31,6 +31,11 @@ async def get_admins_for_notifications(city: str):
         return admins
 
 
+async def get_admin(admin_tg_id: int) -> Admin:
+    async with async_session() as session:
+        return (await session.execute(select(Admin).where(Admin.admin_tg_id == admin_tg_id))).scalars().first()
+
+
 async def get_admin_city(admin_tg_id: str) -> str:
     async with async_session() as session:   
         city = (await session.execute(select(Admin.city).where(Admin.admin_tg_id == admin_tg_id,

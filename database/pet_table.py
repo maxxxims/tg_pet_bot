@@ -32,7 +32,7 @@ async def get_info_from_pet(uuid: UUID) -> Pet:
 async def get_available_pet(offset: int) -> Pet:
     async with async_session() as session:  
         pets = (await session.execute(select(Pet).options(joinedload(
-            Pet.volunteer)).where(Pet.available == True).offset(offset))).scalars().first()
+            Pet.volunteer)).where(Pet.available == True).order_by(Pet.created_time.desc()).offset(offset))).scalars().first()
         return pets
     
 

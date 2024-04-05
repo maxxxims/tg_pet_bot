@@ -1,2 +1,3 @@
-from .mailing import send_notification_in_one_city, send_pet_card_to_admins
+from .mailing import send_pet_card_to_admins
 from .feedback import send_feedback_to_volunteer
+from .owner_notifications import volunteer_notification_to_owners, admin_notification_to_owners

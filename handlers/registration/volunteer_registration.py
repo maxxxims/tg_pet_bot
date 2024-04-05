@@ -11,8 +11,11 @@ from datetime import datetime
 from gpt import make_description
 from models import Volunteer
 from utils import validate_phone_number, get_corrected_city
+from send_notification import volunteer_notification_to_owners
 from config import MSG_AFTER_REGISTRATION
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
 router = Router()
 
@@ -84,3 +87,7 @@ async def writing_city(message: Message, state: FSMContext):
     await message.answer(text='Поздравляем, регистрация завершена!' + '\n' + MSG_AFTER_REGISTRATION)
     #await message.answer(text=MSG_AFTER_REGISTRATION)
     await state.set_state(None)
+    
+    volunteer = await volunteer_table.get_volunteer(message.from_user.id)
+    #logging.info(f'VOLUNTEER, REGISTRED!, user_id = {message.from_user.id}; username = {volunteer.username}')
+    await volunteer_notification_to_owners(message.bot, volunteer)

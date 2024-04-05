@@ -26,7 +26,12 @@ async def get_volunteer_pets(tg_id: int, offset: int) -> Pet:
         volunteer_first = (await session.execute(select(Volunteer).options(joinedload(
             Volunteer.pets)).where(Volunteer.tg_id == tg_id).offset(offset))).scalars().first()
         return volunteer_first.pets
-    
+
+async def get_volunteer(tg_id: int) -> Volunteer:
+    async with async_session() as session:
+        volunteer = (await session.execute(select(Volunteer).where(Volunteer.tg_id == tg_id))).scalars().first()
+    return volunteer
+
 
 async def get_volunteer_city(tg_id: int) -> str:
     async with async_session() as session:

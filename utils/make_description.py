@@ -45,7 +45,11 @@ def get_onwer_to_admin(pet: Pet):
     else:
         return '<b>Владелец: </b>' + f'@{pet.username}'
 
-def make_pet_description(pet: Pet, to_admin: bool = False):
+def additional_info():
+    return f'\nРепост приветствуется 🙏🏻'
+
+
+def make_pet_description(pet: Pet, to_admin: bool = False, additional: bool = True):
     #user_name = f'[{pet.volunteer.nick}](tg://user?id={str({pet.volunteer_tg_id})})'
     #user_name = f'[{pet.owner_nick}](tg://user?id={str({pet.owner_id})})'
     gender = get_pet_gender(pet)
@@ -69,5 +73,6 @@ def make_pet_description(pet: Pet, to_admin: bool = False):
     # text = text + '\n' + '<b>Владелец:<b> ' + f'[{pet.volunteer.nick}](tg://user?id={str(pet.volunteer_tg_id)})'
 
     text = text + '\n' + owner
-
+    if additional:  text += additional_info()
+    
     return text

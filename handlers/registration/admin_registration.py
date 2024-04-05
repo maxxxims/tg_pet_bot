@@ -10,7 +10,7 @@ from database import admin_table
 from utils import validate_city, get_corrected_city
 from config import MSG_AFTER_ADMIN_REGISTRATION
 from middlewares import StopProcessMiddleware
-
+from send_notification import admin_notification_to_owners
 
 
 async def exit_action_admin_registration(message: Message, state: FSMContext, *args, **kwargs):
@@ -60,5 +60,7 @@ async def cmd_registration_admin_city(message: Message, state: FSMContext):
     await admin_table.update_admin_column(message.from_user.id, city=corrected_city)
     await admin_table.finish_registration(message.from_user.id)
     await state.set_state(None)
-
+    
+    admin = await admin_table.get_admin(message.from_user.id)
+    await admin_notification_to_owners(message.bot, admin)
 
