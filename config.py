@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-OWNERS_ID = [683099207]
+OWNERS_ID = [683099207, 1737030496]
 
 DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS = 0.1
 
@@ -23,9 +23,9 @@ def get_owner_tg_id():
     return int(os.getenv('OWNER_ID'))
 
 def load_bot_token():
-    return '6937977238:AAGZWXGSeheZy1eXfAJVC9mUvhl5fk7D358'
+    #return '6937977238:AAGZWXGSeheZy1eXfAJVC9mUvhl5fk7D358'
     load_dotenv()
-    return os.getenv("OLD_BOT_TOKEN")
+    return os.getenv("BOT_TOKEN_PROD")
 
 
 def load_db_url():
