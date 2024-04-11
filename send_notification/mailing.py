@@ -42,7 +42,7 @@ async def send_pet_card_to_admins(bot: Bot, pet: Pet, city: str):
         return
     print('here')
     admin_list_ids = [admin.admin_tg_id for admin in admin_list]
-    text = make_pet_description(pet)
+    text = await make_pet_description(pet, bot=bot)
     greeting_text = '<b>Появилась новая карточка питомца!</b>'
     keyboard = get_notification_kb_for_admin(pet_uuid=pet.uuid)
     

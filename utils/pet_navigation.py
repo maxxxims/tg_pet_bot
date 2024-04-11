@@ -17,7 +17,7 @@ async def navigation_button_function(
     if pet is None:
         await query.answer(text='Больше нет доступных питомцев', show_alert=show_alert)
         return
-    description = make_pet_description(pet, to_admin=to_admin)
+    description = await make_pet_description(pet, to_admin=to_admin, bot=query.bot)
     try:    await query.message.delete()
     except:  ...
     await query.message.answer_photo(

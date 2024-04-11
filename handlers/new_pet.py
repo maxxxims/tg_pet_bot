@@ -206,7 +206,7 @@ async def agree_prompt(query: CallbackQuery, state: FSMContext, uuid:UUID,
     if callback_data.agree:
         await pet_table.update_available_pet(available=True, uuid=uuid)
         pet = await pet_table.get_info_from_pet(uuid)
-        text = '<u><b>Карточка питомца:</b></u> \n' + make_pet_description(pet)
+        text = '<u><b>Карточка питомца:</b></u> \n' + await make_pet_description(pet, query.bot)
         await query.message.answer_photo(pet.pet_photo_id,
                                         caption=text,
                                         parse_mode="HTML")
@@ -253,7 +253,7 @@ async def write_own_description_text(message: Message, state: FSMContext, uuid: 
     )
     await pet_table.update_available_pet(available=True, uuid=uuid)
     pet = await pet_table.get_info_from_pet(uuid)
-    text = '<u><b>Карточка питомца:</b></u>\n' + make_pet_description(pet)
+    text = '<u><b>Карточка питомца:</b></u>\n' + await make_pet_description(pet, bot=message.bot)
     await message.answer_photo(pet.pet_photo_id,
                                     caption=text,
                                     parse_mode="HTML")

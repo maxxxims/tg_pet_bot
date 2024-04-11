@@ -54,7 +54,7 @@ async def administration_first_card(message: Message, state: FSMContext, city: s
     if pet is None:
         await message.answer(text='Больше нет доступных питомцев')
         return
-    description = make_pet_description(pet, to_admin=False)
+    description = await make_pet_description(pet, to_admin=False, bot=message.bot)
     keyboard = get_kb_navigation_for_administration(city=city, offset=0)
     await message.answer_photo(
         photo=pet.pet_photo_id,
@@ -83,7 +83,7 @@ async def show_cards_for_administration(query: CallbackQuery, state: FSMContext,
         return
     
     await query.message.delete()
-    description = make_pet_description(pet, to_admin=False)
+    description = await make_pet_description(pet, to_admin=False, bot=query.bot)
     keyboard = get_kb_navigation_for_administration(city=callback_data.city, offset=new_offset)
     await query.message.answer_photo(
         photo=pet.pet_photo_id,

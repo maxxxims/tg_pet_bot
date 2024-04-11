@@ -39,7 +39,7 @@ async def show_volunteer_pets(query: CallbackQuery, state: FSMContext, callback_
         await query.answer(text='Вы не добавили ни одного питомца!', show_alert=True)
         await query.message.delete()
         return
-    description = make_pet_description(pet)
+    description = await make_pet_description(pet, bot=query.bot)
     keyboard = get_navigation_kb_for_volunteer(uuid=pet.uuid, offset=0)
     #print('here \n'*5)
     await query.message.answer_photo(
@@ -108,7 +108,7 @@ async def show_admin_pets(query: CallbackQuery, state: FSMContext, callback_data
     if pet is None:
         await query.answer(text='Нет доступных питомцев', show_alert=True)
         return
-    description = make_pet_description(pet, to_admin=False)##
+    description = await make_pet_description(pet, to_admin=False, bot=query.bot)##
     keyboard = get_kb_for_notification(send_to='admin', offset=0, pet_uuid=pet.uuid)
 
     await query.message.answer_photo(

@@ -1,5 +1,5 @@
 from models import Pet
-from aiogram import html
+from aiogram import html, Bot
 
 
 def get_pet_gender(pet: Pet):   return '\n' + f'<b>Пол:</b> {pet.gender}'
@@ -33,8 +33,10 @@ def get_pet_castration(pet: Pet):
     return castration
 
 
-def get_owner(pet: Pet):
-    return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://openmessage?user_id={pet.volunteer_tg_id}')
+async def get_owner(pet: Pet, bot: Bot):
+    user = await bot.get_chat(pet.volunteer_tg_id)
+    return '<b>Владелец: </b>' + f'@{user.username}'
+    #return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://openmessage?user_id={pet.volunteer_tg_id}')
     #return '<b>Владелец: </b>' + f"<a href=tg://user?id={pet.volunteer_tg_id}>{pet.volunteer.name}</a>"
     #if pet.volunteer.username is None:
     #    return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.volunteer.nick}</a>'
@@ -42,7 +44,9 @@ def get_owner(pet: Pet):
     #    return '<b>Владелец: </b>' + f'@{pet.volunteer.username}'
 
 
-def get_onwer_to_admin(pet: Pet):
+async def get_onwer_to_admin(pet: Pet, bot: Bot):
+    user = await bot.get_chat(pet.volunteer_tg_id)
+    return '<b>Владелец: </b>' + f'@{user.username}'
     return '<b>Владелец: </b>' + html.link(pet.nick, link=f'tg://user?id={pet.volunteer_tg_id}')
     if pet.username is None:
         return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.nick}</a>'
@@ -54,7 +58,7 @@ def additional_info():
     return f'\nРепост приветствуется 🙏🏻'
 
 
-def make_pet_description(pet: Pet, to_admin: bool = False, additional: bool = True):
+async def make_pet_description(pet: Pet, bot: Bot, to_admin: bool = False, additional: bool = True):
     #user_name = f'[{pet.volunteer.nick}](tg://user?id={str({pet.volunteer_tg_id})})'
     #user_name = f'[{pet.owner_nick}](tg://user?id={str({pet.owner_id})})'
     gender = get_pet_gender(pet)
@@ -67,9 +71,9 @@ def make_pet_description(pet: Pet, to_admin: bool = False, additional: bool = Tr
     special_care = get_pet_special_care(pet)
     city = get_pet_city(pet)
     if to_admin:
-        owner = get_onwer_to_admin(pet)
+        owner = await get_onwer_to_admin(pet, bot)
     else:
-        owner = get_owner(pet)
+        owner = await get_owner(pet, bot)
 
     text = pet.description + '\n' + ' \n' + '<u><b>Дополнительная информация:</b></u>'
     
