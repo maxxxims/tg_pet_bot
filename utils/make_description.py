@@ -34,8 +34,11 @@ def get_pet_castration(pet: Pet):
 
 
 async def get_owner(pet: Pet, bot: Bot):
-    user = await bot.get_chat(pet.volunteer_tg_id)
-    return '<b>Владелец: </b>' + f'@{user.username}'
+    try:
+        user = await bot.get_chat(pet.volunteer_tg_id)
+        return '<b>Владелец: </b>' + f'@{user.username}'
+    except:
+        return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.volunteer.nick}</a>'
     #return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://openmessage?user_id={pet.volunteer_tg_id}')
     #return '<b>Владелец: </b>' + f"<a href=tg://user?id={pet.volunteer_tg_id}>{pet.volunteer.name}</a>"
     #if pet.volunteer.username is None:
@@ -45,8 +48,11 @@ async def get_owner(pet: Pet, bot: Bot):
 
 
 async def get_onwer_to_admin(pet: Pet, bot: Bot):
-    user = await bot.get_chat(pet.volunteer_tg_id)
-    return '<b>Владелец: </b>' + f'@{user.username}'
+    try:
+        user = await bot.get_chat(pet.volunteer_tg_id)
+        return '<b>Владелец: </b>' + f'@{user.username}'
+    except:
+        return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.nick}</a>'
     return '<b>Владелец: </b>' + html.link(pet.nick, link=f'tg://user?id={pet.volunteer_tg_id}')
     if pet.username is None:
         return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.nick}</a>'
