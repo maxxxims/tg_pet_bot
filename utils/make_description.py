@@ -1,4 +1,5 @@
 from models import Pet
+from aiogram import html
 
 
 def get_pet_gender(pet: Pet):   return '\n' + f'<b>Пол:</b> {pet.gender}'
@@ -33,17 +34,21 @@ def get_pet_castration(pet: Pet):
 
 
 def get_owner(pet: Pet):
-    if pet.volunteer.username is None:
-        return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.volunteer.nick}</a>'
-    else:
-        return '<b>Владелец: </b>' + f'@{pet.volunteer.username}'
+    return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://user?id={pet.volunteer_tg_id}')
+    #return '<b>Владелец: </b>' + f"<a href=tg://user?id={pet.volunteer_tg_id}>{pet.volunteer.name}</a>"
+    #if pet.volunteer.username is None:
+    #    return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.volunteer.nick}</a>'
+    #else:
+    #    return '<b>Владелец: </b>' + f'@{pet.volunteer.username}'
 
 
 def get_onwer_to_admin(pet: Pet):
+    return '<b>Владелец: </b>' + html.link(pet.nick, link=f'tg://user?id={pet.volunteer_tg_id}')
     if pet.username is None:
         return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.nick}</a>'
     else:
         return '<b>Владелец: </b>' + f'@{pet.username}'
+
 
 def additional_info():
     return f'\nРепост приветствуется 🙏🏻'
