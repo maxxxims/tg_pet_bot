@@ -34,7 +34,7 @@ def get_pet_castration(pet: Pet):
 
 
 def get_owner(pet: Pet):
-    return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://user?id={pet.volunteer_tg_id}')
+    return '<b>Владелец: </b>' + html.link(pet.volunteer.nick, link=f'tg://openmessage?user_id={pet.volunteer_tg_id}')
     #return '<b>Владелец: </b>' + f"<a href=tg://user?id={pet.volunteer_tg_id}>{pet.volunteer.name}</a>"
     #if pet.volunteer.username is None:
     #    return '<b>Владелец: </b>' + f'<a href="tg://user?id={pet.volunteer_tg_id}">{pet.volunteer.nick}</a>'

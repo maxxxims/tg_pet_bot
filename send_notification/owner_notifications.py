@@ -7,7 +7,7 @@ from models import Volunteer, Admin
 
 
 def _get_user_info(name: str, city: str, tg_id: int):
-    res = '<b>Владелец: </b>' + html.link(name, link=f'tg://user?id={tg_id}')
+    res = '<b>Владелец: </b>' + html.link(name, link=f'tg://openmessage?user_id={tg_id}')
     return res
     #return f"\n<b>Пользователь:</b> @{username}\n<b>Город:</b> {city}"
 
