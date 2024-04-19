@@ -65,5 +65,11 @@ async def cmd_statistics(message: Message, state: FSMContext):
             df_volunteer_table.to_excel(writer, sheet_name="Волонтёры", index=False)
             df_admin_table.to_excel(writer, sheet_name="Администраторы каналов", index=False)
 
-        caption = f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано питомцев: {pets_number}\nЗарегистрировано каналов: {channels_number}'
+        deleted_pets_number = pet_table.DeletedPets.number()
+        all_pets = deleted_pets_number + pets_number
+        
+        caption  = f'Зарегистрировано волонтеров: {volunteers_number}\nЗарегистрировано каналов: {channels_number}\n\nЗарегистрировано питомцев: {pets_number}'
+        
+        caption += f'\nУдалённых карточек питомцев: {deleted_pets_number}\nВсего карточек питомцев: {all_pets}'
+        
         await message.answer_document(FSInputFile('data/statistics.xlsx'), caption=caption)

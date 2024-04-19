@@ -19,18 +19,26 @@ def get_kb_choose_city_to_admin() -> InlineKeyboardMarkup:
     return kb
 
 
-def get_kb_navigation_for_administration(city: str, offset: int  = 0):
+def get_kb_navigation_for_administration(city: str, pet_uuid: UUID, offset: int  = 0):
     
     if offset == 0:
-        kb_list = [[
+        kb_list = [
+            [
                 InlineKeyboardButton(text='❌ Закрыть', callback_data=AdministrationStopNavigationCallback().pack()),
                 InlineKeyboardButton(text='➡️', callback_data=AdministrationNavigationButtonCallback(city=city, offset=offset, ofsset_delta=1).pack()),
+            ],
+            [
+                InlineKeyboardButton(text='🗑️ Удалить карточку', callback_data=AdminDeleteVolunteerCardCallback(uuid=pet_uuid).pack())
             ]]
     else:
-        kb_list = [[
+        kb_list = [
+            [
                 InlineKeyboardButton(text='⬅️', callback_data=AdministrationNavigationButtonCallback(city=city, offset=offset, ofsset_delta=-1).pack()),
                 InlineKeyboardButton(text='❌ Закрыть', callback_data=AdministrationStopNavigationCallback().pack()),
                 InlineKeyboardButton(text='➡️', callback_data=AdministrationNavigationButtonCallback(city=city, offset=offset, ofsset_delta=1).pack()),
+            ],
+            [
+                InlineKeyboardButton(text='🗑️ Удалить карточку', callback_data=AdminDeleteVolunteerCardCallback(uuid=pet_uuid).pack())
             ]]
 
     

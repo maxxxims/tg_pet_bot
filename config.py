@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-OWNERS_ID = [683099207, 1737030496]
+OWNERS_ID = [683099207] #, 1737030496]
 
 DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS = 0.1
 

@@ -17,14 +17,14 @@ async def _get_user_info(bot: Bot, tg_id: int, username: str):
 
 
 async def volunteer_notification_to_owners(bot: Bot, volunteer: Volunteer):
-    txt = f"<b>Зарегестрирован новый волонтёр!</b>" + await _get_user_info(bot, volunteer.tg_id, volunteer.nick)
+    txt = f"<b>Зарегестрирован новый волонтёр!</b>\n" + await _get_user_info(bot, volunteer.tg_id, volunteer.nick)
     for owner_id in OWNERS_ID:
         await bot.send_message(chat_id=owner_id, text=txt, parse_mode='HTML')
         await asyncio.sleep(DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS)
         
         
 async def admin_notification_to_owners(bot: Bot, admin: Admin):
-    txt = f"<b>Зарегестрирован новый телеграм канал!</b>" + await _get_user_info(bot, admin.admin_tg_id, admin.admin_nick) + f"\n<b>Название: </b>{admin.channel_name}"
+    txt = f"<b>Зарегестрирован новый телеграм канал!</b>\n" + await _get_user_info(bot, admin.admin_tg_id, admin.admin_nick) + f"\n<b>Название: </b>{admin.channel_name}"
     for owner_id in OWNERS_ID:
         await bot.send_message(chat_id=owner_id, text=txt, parse_mode='HTML')
         await asyncio.sleep(DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS)

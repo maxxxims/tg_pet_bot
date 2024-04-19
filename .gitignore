@@ -5,3 +5,6 @@ data/
 *.db
 test.py
 .venv
+admin_list.txt
+admin_list_dev.txt
+correct_db

@@ -3,3 +3,4 @@ from .phone_number import validate_phone_number
 from .cities import validate_city, get_corrected_city
 
 from .pet_navigation import navigation_button_function
+from .register_administration import register_administration_from_txt

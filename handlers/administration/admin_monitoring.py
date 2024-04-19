@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from keyboards import *
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from database import volunteer_table, pet_table, admin_table, pet2admin_table
+from database import volunteer_table, pet_table, admin_table, pet2admin_table, administration_table
 from callbacks import *
 from utils import get_corrected_city, make_pet_description
 from config import  get_owner_tg_id
@@ -21,7 +21,8 @@ router.message.middleware(StopProcessMiddleware(exit_action=administration_exit)
 
 @router.callback_query(StateFilter(None), AdministrationShowPetsCallback.filter())
 async def get_pets_for_admin(query: CallbackQuery, state: FSMContext, callback_data: AdministrationShowPetsCallback):
-    if query.from_user.id not in [1737030496, 683099207, 1013170672, 272240371, 353007395]:
+    administration_list = await administration_table.get_administration_ids()
+    if query.from_user.id not in administration_list:
         await query.answer(text='Доступно только администраторам', show_alert=False)
         return
     kb = get_kb_choose_city_to_admin()
@@ -31,12 +32,12 @@ async def get_pets_for_admin(query: CallbackQuery, state: FSMContext, callback_d
     
 
 @router.message(AdminShowPets.choosing_city, F.text)
-async def administration_first_card(message: Message, state: FSMContext, city: str = None):
+async def administration_first_card(message: Message, state: FSMContext, city: str = None, tg_id: int = None):
     await message.delete()
     #if message.from_user.id not in [1737030496, 683099207, 1013170672, 272240371, 353007395]:
     #    message.answer(text='Доступно только администраторам', show_alert=False)
     #    return
-    
+    if tg_id is None:   tg_id = message.from_user.id
     if city is None:
         city = get_corrected_city(message.text)
         if len(city) == 0:
@@ -51,11 +52,14 @@ async def administration_first_card(message: Message, state: FSMContext, city: s
             city = get_corrected_city(city)
             pet = await pet_table.get_available_pet_in_city(city, offset=0)
     await state.set_state(None)
+    await administration_table.update_search_city(tg_id, city)
+    
     if pet is None:
         await message.answer(text='Больше нет доступных питомцев')
         return
     description = await make_pet_description(pet, to_admin=False, bot=message.bot)
-    keyboard = get_kb_navigation_for_administration(city=city, offset=0)
+    keyboard = get_kb_navigation_for_administration(city=city, pet_uuid=pet.uuid, offset=0)
+    await administration_table.update_current_offset(tg_id=tg_id, offset=0)
     await message.answer_photo(
         photo=pet.pet_photo_id,
         caption=description,
@@ -67,8 +71,8 @@ async def administration_first_card(message: Message, state: FSMContext, city: s
 
 @router.callback_query(StateFilter(AdminShowPets.choosing_city), AdministrationChooseAnyCityCallback.filter())
 async def get_pets_for_admin(query: CallbackQuery, state: FSMContext, callback_data: AdministrationChooseAnyCityCallback):
-    await administration_first_card(query.message, state, city='any')
-    #await query.message.delete()
+    await administration_first_card(query.message, state, city='any', tg_id=query.from_user.id)
+    
 
 
 @router.callback_query(StateFilter(None), AdministrationNavigationButtonCallback.filter())
@@ -79,12 +83,16 @@ async def show_cards_for_administration(query: CallbackQuery, state: FSMContext,
     else:
         pet = await pet_table.get_available_pet(offset=new_offset)
     if pet is None:
-        await query.answer(text='Больше нет  доступных питомцев!', show_alert=True)
+        if new_offset != 0:
+            await query.answer(text='Больше нет  доступных питомцев!', show_alert=True)
+        else:
+            await query.answer(text='В выбранном городе нет зарегистрированных питомцев', show_alert=True)
         return
     
     await query.message.delete()
     description = await make_pet_description(pet, to_admin=False, bot=query.bot)
-    keyboard = get_kb_navigation_for_administration(city=callback_data.city, offset=new_offset)
+    keyboard = get_kb_navigation_for_administration(city=callback_data.city, pet_uuid=pet.uuid, offset=new_offset)
+    await administration_table.update_current_offset(tg_id=query.from_user.id, offset=new_offset)
     await query.message.answer_photo(
         photo=pet.pet_photo_id,
         caption=description,
@@ -92,6 +100,21 @@ async def show_cards_for_administration(query: CallbackQuery, state: FSMContext,
         reply_markup=keyboard
     )
 
+
+@router.callback_query(StateFilter(None), AdminDeleteVolunteerCardCallback.filter())
+async def administrator_delete_volunteer_card(query: CallbackQuery, state: FSMContext, callback_data: AdminDeleteVolunteerCardCallback):    
+    await query.answer(text='Карточка удалена', show_alert=False)
+    current_offset = await administration_table.get_current_offset(tg_id=query.from_user.id)
+    delta = - 1 if current_offset != 0 else 1
+    city = await administration_table.get_search_city(tg_id=query.from_user.id)
+    await show_cards_for_administration(query, state,
+                                        callback_data=AdministrationNavigationButtonCallback(
+                                            offset=current_offset,
+                                            ofsset_delta=delta,
+                                            city=city
+                                        ))
+    await pet_table.delete_pet_card(callback_data.uuid)
+    
 
 @router.callback_query(StateFilter(None), AdministrationStopNavigationCallback.filter())
 async def stop_administration_navigation(query: CallbackQuery, state: FSMContext):

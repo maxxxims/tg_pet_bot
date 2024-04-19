@@ -5,6 +5,18 @@ from uuid import uuid4, UUID
 from sqlalchemy.orm import joinedload
 
 
+class DeletedPets:
+    __number: int = 0
+    @classmethod
+    def increment(cls):
+        cls.__number += 1
+    @classmethod
+    def number(cls) -> int:
+        return cls.__number
+    
+        
+
+
 async def add_new_pet(volunteer_tg_id: int) -> UUID:
     uuid = uuid4()
     async with async_session() as session:
@@ -46,6 +58,7 @@ async def get_available_pet_in_city(city: str, offset: int) -> Pet:
 
 
 async def delete_pet_card(uuid: UUID) -> Pet:
+    DeletedPets.increment()
     async with async_session() as session:
         async with session.begin():
             await session.execute(delete(Pet).where(Pet.uuid == uuid))

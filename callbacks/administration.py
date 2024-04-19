@@ -14,3 +14,5 @@ class AdministrationNavigationButtonCallback(CallbackData, prefix='navigation_ad
     ofsset_delta: int
 
 
+class AdminDeleteVolunteerCardCallback(CallbackData, prefix='dvcb'):
+    uuid: UUID

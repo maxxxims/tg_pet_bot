@@ -7,6 +7,7 @@ admin_registration, notifications, manage_pets, admin_monitoring
 from db import init_db, drop_db
 import logging
 import aiohttp
+from utils import register_administration_from_txt
 
 
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +48,7 @@ async def main():
     await bot.set_my_commands(commands=get_bot_commands())
     # await drop_db()
     await init_db()
+    await register_administration_from_txt('admin_list.txt')
     connection_to_gpt = await check_gpt_server()
     print(f'connection_to_gpt = {connection_to_gpt}')
 
@@ -55,6 +57,8 @@ async def main():
     await dp.start_polling(bot)
 
 
+
 if __name__ == "__main__":
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
