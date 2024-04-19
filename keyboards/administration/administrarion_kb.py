@@ -45,3 +45,14 @@ def get_kb_navigation_for_administration(city: str, pet_uuid: UUID, offset: int 
     kb = InlineKeyboardMarkup(inline_keyboard=kb_list)
 
     return kb
+
+
+def get_del_agreement_kb(pet_uuid: UUID, msg_id: int):
+    kb_list = [
+            [
+                InlineKeyboardButton(text='🗑️Удалить', callback_data=AgreementDeleteCallbakc(pet_uuid=pet_uuid, msg_id=msg_id).pack()),
+                InlineKeyboardButton(text='❌Не удалять', callback_data=CloseDeleteCallback().pack()),
+
+            ]]
+    kb = InlineKeyboardMarkup(inline_keyboard=kb_list)
+    return kb

@@ -33,7 +33,18 @@ async def update_search_city(tg_id: int, city: str):
     async with async_session() as session:
         async with session.begin():
             await session.execute(update(Administration).values(city_to_search=city).where(Administration.tg_id == tg_id))
-            
+
+
+async def update_last_msg_id(tg_id: int, msg_id: int):
+    async with async_session() as session:
+        async with session.begin():
+            await session.execute(update(Administration).values(last_msg_id=msg_id).where(Administration.tg_id == tg_id))
+
+async def get_last_msg_id(tg_id: int) -> str:
+    async with async_session() as session:
+        msg_id = (await session.execute(select(Administration.last_msg_id).where(Administration.tg_id == tg_id))).scalars().first()
+    return msg_id            
+
 
 async def get_search_city(tg_id: int) -> str:
     async with async_session() as session:

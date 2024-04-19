@@ -12,3 +12,4 @@ class Administration(Base):
     city_to_search: Mapped[str] = mapped_column(nullable=True)
     show_notifications: Mapped[bool] = mapped_column(default=True, nullable=False)
     current_offset: Mapped[int] = mapped_column(default=0, nullable=True)
+    last_msg_id: Mapped[int] = mapped_column(nullable=True)

@@ -60,12 +60,14 @@ async def administration_first_card(message: Message, state: FSMContext, city: s
     description = await make_pet_description(pet, to_admin=False, bot=message.bot)
     keyboard = get_kb_navigation_for_administration(city=city, pet_uuid=pet.uuid, offset=0)
     await administration_table.update_current_offset(tg_id=tg_id, offset=0)
-    await message.answer_photo(
+    msg = await message.answer_photo(
         photo=pet.pet_photo_id,
         caption=description,
         parse_mode="HTML",
         reply_markup=keyboard
     )
+    await administration_table.update_last_msg_id(tg_id=tg_id, msg_id=msg.message_id)
+
 
 
 
@@ -93,27 +95,51 @@ async def show_cards_for_administration(query: CallbackQuery, state: FSMContext,
     description = await make_pet_description(pet, to_admin=False, bot=query.bot)
     keyboard = get_kb_navigation_for_administration(city=callback_data.city, pet_uuid=pet.uuid, offset=new_offset)
     await administration_table.update_current_offset(tg_id=query.from_user.id, offset=new_offset)
-    await query.message.answer_photo(
+    msg = await query.message.answer_photo(
         photo=pet.pet_photo_id,
         caption=description,
         parse_mode="HTML",
         reply_markup=keyboard
     )
+    await administration_table.update_last_msg_id(tg_id=query.from_user.id, msg_id=msg.message_id)
 
 
 @router.callback_query(StateFilter(None), AdminDeleteVolunteerCardCallback.filter())
 async def administrator_delete_volunteer_card(query: CallbackQuery, state: FSMContext, callback_data: AdminDeleteVolunteerCardCallback):    
+    msg_id = await administration_table.get_last_msg_id(tg_id=query.from_user.id)
+    kb = get_del_agreement_kb(pet_uuid=callback_data.uuid, msg_id=msg_id)
+    await query.message.answer(text='Подтвердите удаление', reply_markup=kb)
+    await query.answer()
+    
+    
+    
+@router.callback_query(StateFilter(None), AgreementDeleteCallbakc.filter())
+async def administrator_agreement_delete_volunteer_card(query: CallbackQuery, state: FSMContext, callback_data: AgreementDeleteCallbakc):    
+    city = await administration_table.get_search_city(tg_id=query.from_user.id)
     await query.answer(text='Карточка удалена', show_alert=False)
     current_offset = await administration_table.get_current_offset(tg_id=query.from_user.id)
     delta = - 1 if current_offset != 0 else 1
-    city = await administration_table.get_search_city(tg_id=query.from_user.id)
     await show_cards_for_administration(query, state,
                                         callback_data=AdministrationNavigationButtonCallback(
                                             offset=current_offset,
                                             ofsset_delta=delta,
                                             city=city
                                         ))
-    await pet_table.delete_pet_card(callback_data.uuid)
+    msg_id = callback_data.msg_id
+    try:    
+        await query.bot.delete_message(chat_id=query.from_user.id, message_id=msg_id)
+    except: ...
+    try:
+        await query.message.delete()
+    except: ...
+    await pet_table.delete_pet_card(callback_data.pet_uuid)
+    
+    
+
+@router.callback_query(StateFilter(None), CloseDeleteCallback.filter())
+async def administrator_agreement_delete_volunteer_card_close(query: CallbackQuery, state: FSMContext, callback_data: CloseDeleteCallback):    
+    await query.message.delete()
+    
     
 
 @router.callback_query(StateFilter(None), AdministrationStopNavigationCallback.filter())

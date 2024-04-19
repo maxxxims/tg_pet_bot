@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os
+import numpy as np
 
-OWNERS_ID = [683099207] #, 1737030496]
+OWNERS_ID = np.loadtxt('admin_list.txt', ndmin=1, dtype=int) #, 1737030496]
 
 DELAY_BETWEEN_NOTIFICATIONS_IN_SECONDS = 0.1
 

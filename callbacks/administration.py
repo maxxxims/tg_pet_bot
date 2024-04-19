@@ -16,3 +16,10 @@ class AdministrationNavigationButtonCallback(CallbackData, prefix='navigation_ad
 
 class AdminDeleteVolunteerCardCallback(CallbackData, prefix='dvcb'):
     uuid: UUID
+    
+
+class AgreementDeleteCallbakc(CallbackData, prefix='del'):
+    pet_uuid: UUID
+    msg_id: int
+    
+class CloseDeleteCallback(CallbackData, prefix='close'):    ...
